@@ -1,11 +1,35 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { LeadershipSnapshot } from './LeadershipSnapshot'
+import { DEMO_CM_DATA } from '@/lib/demo-data'
 
 export default async function SnapshotPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user && process.env.NEXT_PUBLIC_DEMO_MODE !== 'true') redirect('/login')
+
+  if (process.env.NEXT_PUBLIC_DEMO_MODE === 'true' && !user) {
+    return (
+      <LeadershipSnapshot
+        coachCount={DEMO_CM_DATA.coaches.length}
+        completedSessions={50}
+        noShows={6}
+        openEscalations={DEMO_CM_DATA.escalations.length}
+        rygCounts={{ R: 28, Y: 51, G: 65, unset: 0 }}
+        focusDistribution={{ Literacy: 20, Numeracy: 16, Relationship: 14 }}
+        coaches={DEMO_CM_DATA.coaches.map(c => {
+          const m = DEMO_CM_DATA.sessionsByCoach[c.id as keyof typeof DEMO_CM_DATA.sessionsByCoach]
+            ?? { completed: 0, noShow: 0 }
+          return {
+            ...c,
+            completed: m.completed,
+            noShows: m.noShow,
+            openEsc: DEMO_CM_DATA.escalations.filter(e => e.coach.name === c.name).length,
+          }
+        })}
+      />
+    )
+  }
 
   const { data: profile } = await supabase
     .from('profiles')

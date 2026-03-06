@@ -5,64 +5,75 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { AlertCircle, ArrowRight } from 'lucide-react'
 import { formatDate } from '@/lib/utils'
+import { DEMO_CM_DATA } from '@/lib/demo-data'
 
 export default async function CoachesPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user && process.env.NEXT_PUBLIC_DEMO_MODE !== 'true') redirect('/login')
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('cohort_id')
-    .eq('id', user.id)
-    .single()
+  let coachMetrics: any[]
 
-  const { data: coaches } = await supabase
-    .from('profiles')
-    .select('id, name')
-    .eq('role', 'coach')
-    .eq('cohort_id', profile?.cohort_id)
-    .order('name')
+  if (process.env.NEXT_PUBLIC_DEMO_MODE === 'true' && !user) {
+    coachMetrics = DEMO_CM_DATA.coaches.map(coach => {
+      const m = DEMO_CM_DATA.sessionsByCoach[coach.id as keyof typeof DEMO_CM_DATA.sessionsByCoach]
+        ?? { completed: 0, noShow: 0 }
+      const openEsc = DEMO_CM_DATA.escalations.filter(e => e.coach.name === coach.name).length
+      return { ...coach, openEsc, teacherCount: 36, completed: m.completed, noShows: m.noShow, pendingConfirmation: 0 }
+    }).sort((a: any, b: any) => b.openEsc - a.openEsc)
+  } else {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('cohort_id')
+      .eq('id', user!.id)
+      .single()
 
-  const coachIds = (coaches ?? []).map((c: any) => c.id)
+    const { data: coaches } = await supabase
+      .from('profiles')
+      .select('id, name')
+      .eq('role', 'coach')
+      .eq('cohort_id', profile?.cohort_id)
+      .order('name')
 
-  const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
+    const coachIds = (coaches ?? []).map((c: any) => c.id)
 
-  const [sessions, escalations, assignments] = await Promise.all([
-    supabase
-      .from('sessions')
-      .select('status, coach_id, confirmation_status')
-      .in('coach_id', coachIds)
-      .gte('scheduled_at', thirtyDaysAgo),
+    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
 
-    supabase
-      .from('escalations')
-      .select('coach_id, status')
-      .in('coach_id', coachIds)
-      .eq('status', 'open'),
+    const [sessions, escalations, assignments] = await Promise.all([
+      supabase
+        .from('sessions')
+        .select('status, coach_id, confirmation_status')
+        .in('coach_id', coachIds)
+        .gte('scheduled_at', thirtyDaysAgo),
 
-    supabase
-      .from('assignments')
-      .select('coach_id')
-      .in('coach_id', coachIds)
-      .eq('is_active', true),
-  ])
+      supabase
+        .from('escalations')
+        .select('coach_id, status')
+        .in('coach_id', coachIds)
+        .eq('status', 'open'),
 
-  const sessionData = sessions.data ?? []
-  const escalationData = escalations.data ?? []
-  const assignmentData = assignments.data ?? []
+      supabase
+        .from('assignments')
+        .select('coach_id')
+        .in('coach_id', coachIds)
+        .eq('is_active', true),
+    ])
 
-  // Sort coaches by urgency (most open escalations first)
-  const coachMetrics = (coaches ?? []).map((coach: any) => {
-    const coachSessions = sessionData.filter((s: any) => s.coach_id === coach.id)
-    const openEsc = escalationData.filter((e: any) => e.coach_id === coach.id).length
-    const teacherCount = assignmentData.filter((a: any) => a.coach_id === coach.id).length
-    const completed = coachSessions.filter((s: any) => s.status === 'completed').length
-    const noShows = coachSessions.filter((s: any) => s.status === 'no_show').length
-    const pending = coachSessions.filter((s: any) => s.confirmation_status === 'pending').length
+    const sessionData = sessions.data ?? []
+    const escalationData = escalations.data ?? []
+    const assignmentData = assignments.data ?? []
 
-    return { ...coach, openEsc, teacherCount, completed, noShows, pendingConfirmation: pending }
-  }).sort((a: any, b: any) => b.openEsc - a.openEsc)
+    coachMetrics = (coaches ?? []).map((coach: any) => {
+      const coachSessions = sessionData.filter((s: any) => s.coach_id === coach.id)
+      const openEsc = escalationData.filter((e: any) => e.coach_id === coach.id).length
+      const teacherCount = assignmentData.filter((a: any) => a.coach_id === coach.id).length
+      const completed = coachSessions.filter((s: any) => s.status === 'completed').length
+      const noShows = coachSessions.filter((s: any) => s.status === 'no_show').length
+      const pending = coachSessions.filter((s: any) => s.confirmation_status === 'pending').length
+
+      return { ...coach, openEsc, teacherCount, completed, noShows, pendingConfirmation: pending }
+    }).sort((a: any, b: any) => b.openEsc - a.openEsc)
+  }
 
   return (
     <div className="space-y-4">
