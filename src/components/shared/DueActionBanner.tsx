@@ -19,10 +19,8 @@ export function DueActionBanner({ actions }: DueActionBannerProps) {
   if (actions.length === 0) return null
 
   return (
-    <div className="rounded-xl bg-amber-50 border border-amber-200/60 p-4 flex items-start gap-3">
-      <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center shrink-0">
-        <AlertCircle className="h-4 w-4 text-amber-600" />
-      </div>
+    <div className="rounded-lg bg-amber-50 border border-amber-200/60 p-4 flex items-start gap-3">
+      <AlertCircle className="h-4 w-4 text-amber-600 shrink-0 mt-0.5" />
       <div className="flex-1 min-w-0">
         <p className="text-sm font-semibold text-amber-800">
           {actions.length} pending {actions.length === 1 ? 'action' : 'actions'} from previous sessions

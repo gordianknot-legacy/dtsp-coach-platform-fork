@@ -14,10 +14,10 @@ export function KPICard({ label, value, subtext, trend, className }: KPICardProp
   const TrendIcon = trend === 'up' ? TrendingUp : trend === 'down' ? TrendingDown : Minus
 
   return (
-    <Card className={cn('group hover:shadow-md transition-shadow duration-200', className)}>
-      <CardContent className="pt-5 pb-5 px-5">
-        <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/70">{label}</p>
-        <p className="text-3xl font-bold mt-2 tabular-nums tracking-tight">{value}</p>
+    <Card className={cn(className)}>
+      <CardContent className="pt-4 pb-4 px-4">
+        <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">{label}</p>
+        <p className="text-2xl font-bold mt-1.5 tabular-nums tracking-tight">{value}</p>
         {subtext && (
           <div className={cn(
             'flex items-center gap-1 mt-2',

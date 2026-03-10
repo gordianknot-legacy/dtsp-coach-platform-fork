@@ -37,7 +37,7 @@ export async function WorkspaceShell({ role, children }: WorkspaceShellProps) {
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <TopNav role={role} userName={userName} escalationCount={escalationCount} />
-      <main className="flex-1 container mx-auto px-4 sm:px-6 py-6 sm:py-8 max-w-7xl">
+      <main className="flex-1 mx-auto w-full px-4 sm:px-6 py-6 sm:py-8 max-w-5xl">
         {children}
       </main>
     </div>

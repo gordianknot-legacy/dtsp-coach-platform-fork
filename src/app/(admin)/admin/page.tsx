@@ -32,27 +32,25 @@ export default async function AdminHome() {
   ]
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">Admin Dashboard</h1>
-        <p className="text-muted-foreground mt-1">DTSP Coach Platform configuration</p>
+        <h1 className="text-xl font-bold tracking-tight">Admin Dashboard</h1>
+        <p className="text-sm text-muted-foreground mt-1">DTSP Coach Platform configuration</p>
       </div>
 
       {/* Warnings */}
       {warnings.length > 0 && (
-        <div className="rounded-xl bg-amber-50 border border-amber-200/60 p-5">
+        <div className="rounded-lg bg-amber-50 border border-amber-200/60 p-4">
           <div className="flex items-center gap-2.5 mb-3">
-            <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center">
-              <AlertCircle className="h-4 w-4 text-amber-600" />
-            </div>
+            <AlertCircle className="h-4 w-4 text-amber-600 shrink-0" />
             <p className="text-sm font-semibold text-amber-800">
               Setup incomplete ({warnings.length} item{warnings.length !== 1 ? 's' : ''})
             </p>
           </div>
-          <ul className="space-y-1.5 ml-[42px]">
+          <ul className="space-y-1 ml-6">
             {warnings.map((w) => (
-              <li key={w} className="text-sm text-amber-700 leading-relaxed">{w}</li>
+              <li key={w} className="text-sm text-amber-700">{w}</li>
             ))}
           </ul>
         </div>
@@ -66,10 +64,10 @@ export default async function AdminHome() {
           { label: 'Org Units', value: orgCount.count ?? 0 },
           { label: 'Rubrics', value: standardsExist.count ?? 0 },
         ].map((stat) => (
-          <Card key={stat.label} className="hover:shadow-md transition-shadow">
-            <CardContent className="pt-5 pb-5 text-center">
-              <p className="text-3xl font-bold tabular-nums">{stat.value}</p>
-              <p className="text-xs text-muted-foreground mt-1.5 font-medium">{stat.label}</p>
+          <Card key={stat.label}>
+            <CardContent className="pt-4 pb-4 text-center">
+              <p className="text-2xl font-bold tabular-nums">{stat.value}</p>
+              <p className="text-xs text-muted-foreground mt-1 font-medium">{stat.label}</p>
             </CardContent>
           </Card>
         ))}
@@ -81,9 +79,9 @@ export default async function AdminHome() {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {quickLinks.map((link) => (
             <Link key={link.href} href={link.href}>
-              <Card className="group hover:shadow-md hover:border-primary/15 hover:-translate-y-px transition-all duration-200 cursor-pointer">
-                <CardContent className="pt-5 pb-5 flex items-center gap-4">
-                  <div className={`w-10 h-10 rounded-xl ${link.color} flex items-center justify-center shrink-0`}>
+              <Card className="group hover:shadow-md hover:border-primary/20 transition-all duration-150 cursor-pointer">
+                <CardContent className="pt-4 pb-4 flex items-center gap-3">
+                  <div className={`w-9 h-9 rounded-lg ${link.color} flex items-center justify-center shrink-0`}>
                     <link.icon className="h-5 w-5" />
                   </div>
                   <div className="flex-1 min-w-0">

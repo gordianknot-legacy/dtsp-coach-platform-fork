@@ -59,11 +59,11 @@ export default async function CMHome() {
   const noShowCount = sessions.filter((s: any) => s.status === 'no_show').length
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">Cluster Overview</h1>
-        <p className="text-muted-foreground mt-1">Last 30 days</p>
+        <h1 className="text-xl font-bold tracking-tight">Cluster Overview</h1>
+        <p className="text-sm text-muted-foreground mt-1">Last 30 days</p>
       </div>
 
       {/* KPIs */}
@@ -76,16 +76,14 @@ export default async function CMHome() {
 
       {/* Escalations */}
       {escalations.length > 0 && (
-        <div className="rounded-xl bg-red-50 border border-red-200/60 p-5">
-          <div className="flex items-center gap-2.5 mb-4">
-            <div className="w-8 h-8 rounded-lg bg-red-100 flex items-center justify-center">
-              <AlertCircle className="h-4 w-4 text-red-600" />
-            </div>
+        <div className="rounded-lg bg-red-50 border border-red-200/60 p-4">
+          <div className="flex items-center gap-2.5 mb-3">
+            <AlertCircle className="h-4 w-4 text-red-600 shrink-0" />
             <p className="text-sm font-semibold text-red-800">
               {escalations.length} open escalation{escalations.length !== 1 ? 's' : ''}
             </p>
           </div>
-          <div className="space-y-2.5 ml-[42px]">
+          <div className="space-y-2 ml-6">
             {escalations.map((esc: any) => (
               <div key={esc.id} className="flex items-center justify-between gap-2">
                 <div className="text-sm text-red-900">
@@ -97,7 +95,7 @@ export default async function CMHome() {
               </div>
             ))}
           </div>
-          <div className="ml-[42px] mt-4">
+          <div className="ml-6 mt-3">
             <Button asChild variant="outline" size="sm" className="border-red-200 text-red-700 hover:bg-red-100">
               <Link href="/cm/coaches">View all escalations</Link>
             </Button>

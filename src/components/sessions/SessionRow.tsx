@@ -46,8 +46,8 @@ export function SessionRow({ session, showDate = false }: SessionRowProps) {
     <Link
       href={isCompleted ? `/coach/sessions/${session.id}/after` : `/coach/sessions/${session.id}`}
       className={cn(
-        'group flex items-center gap-4 px-4 py-3.5 rounded-xl bg-card border',
-        'hover:shadow-md hover:border-primary/15 hover:-translate-y-px transition-all duration-200',
+        'group flex items-center gap-4 px-4 py-3 rounded-lg bg-card border',
+        'hover:shadow-md hover:border-primary/20 transition-all duration-150',
         isCompleted && 'opacity-55'
       )}
     >

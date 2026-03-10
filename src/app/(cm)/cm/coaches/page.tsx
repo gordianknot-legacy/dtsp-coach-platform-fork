@@ -76,10 +76,10 @@ export default async function CoachesPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {coachMetrics.map((coach: any) => (
           <Link key={coach.id} href={`/cm/coaches/${coach.id}`}>
-            <Card className="hover:bg-muted/30 transition-colors cursor-pointer">
+            <Card className="hover:shadow-md hover:border-primary/20 transition-all duration-150 cursor-pointer">
               <CardContent className="pt-4 pb-4">
                 <div className="flex items-center justify-between mb-3">
-                  <span className="font-medium">{coach.name}</span>
+                  <span className="text-sm font-medium">{coach.name}</span>
                   <div className="flex items-center gap-2">
                     {coach.openEsc > 0 && (
                       <Badge className="bg-red-100 text-red-700 gap-1">
@@ -92,18 +92,18 @@ export default async function CoachesPage() {
                 </div>
                 <div className="grid grid-cols-3 gap-2 text-center">
                   <div>
-                    <p className="text-lg font-bold">{coach.teacherCount}</p>
-                    <p className="text-xs text-muted-foreground">Teachers</p>
+                    <p className="text-base font-bold tabular-nums">{coach.teacherCount}</p>
+                    <p className="text-[11px] text-muted-foreground">Teachers</p>
                   </div>
                   <div>
-                    <p className="text-lg font-bold text-green-700">{coach.completed}</p>
-                    <p className="text-xs text-muted-foreground">Completed</p>
+                    <p className="text-base font-bold tabular-nums text-emerald-600">{coach.completed}</p>
+                    <p className="text-[11px] text-muted-foreground">Done</p>
                   </div>
                   <div>
-                    <p className={`text-lg font-bold ${coach.noShows > 0 ? 'text-red-700' : 'text-muted-foreground'}`}>
+                    <p className={`text-base font-bold tabular-nums ${coach.noShows > 0 ? 'text-red-600' : 'text-muted-foreground'}`}>
                       {coach.noShows}
                     </p>
-                    <p className="text-xs text-muted-foreground">No-shows</p>
+                    <p className="text-[11px] text-muted-foreground">No-shows</p>
                   </div>
                 </div>
               </CardContent>
