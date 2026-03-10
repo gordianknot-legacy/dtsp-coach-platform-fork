@@ -23,14 +23,17 @@ export default async function CMHome() {
 
   const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
 
-  const [coaches, openEscalations, recentSessions] = await Promise.all([
-    supabase
-      .from('profiles')
-      .select('id, name')
-      .eq('role', 'coach')
-      .eq('cohort_id', cohortId)
-      .order('name'),
+  // Fetch coaches first since sessions query depends on coach IDs
+  const coaches = await supabase
+    .from('profiles')
+    .select('id, name')
+    .eq('role', 'coach')
+    .eq('cohort_id', cohortId)
+    .order('name')
 
+  const coachIds = (coaches.data ?? []).map((c: any) => c.id)
+
+  const [openEscalations, recentSessions] = await Promise.all([
     supabase
       .from('escalations')
       .select('id, trigger_type, teacher:teachers(name), coach:profiles(name), auto_created_at')
@@ -39,11 +42,13 @@ export default async function CMHome() {
       .order('auto_created_at', { ascending: false })
       .limit(5),
 
-    supabase
-      .from('sessions')
-      .select('status, coach_id')
-      .gte('scheduled_at', thirtyDaysAgo)
-      .in('coach_id', (coaches.data ?? []).map((c: any) => c.id)),
+    coachIds.length > 0
+      ? supabase
+          .from('sessions')
+          .select('status, coach_id')
+          .gte('scheduled_at', thirtyDaysAgo)
+          .in('coach_id', coachIds)
+      : Promise.resolve({ data: [] }),
   ])
 
   const coachList = coaches.data ?? []
