@@ -5,7 +5,7 @@ import { UserManagement } from './UserManagement'
 export default async function UsersPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user && process.env.NEXT_PUBLIC_DEMO_MODE !== 'true') redirect('/login')
+  if (!user) redirect('/login')
 
   const { data: profiles } = await supabase
     .from('profiles')

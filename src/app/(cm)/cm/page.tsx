@@ -3,91 +3,15 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
 import { KPICard } from '@/components/shared/KPICard'
-import { RYGBadge } from '@/components/shared/RYGBadge'
-import { AlertCircle, ArrowRight } from 'lucide-react'
-import type { RYGStatus } from '@/lib/supabase/types'
+import { AlertCircle, ArrowRight, ChevronRight } from 'lucide-react'
 import { formatDate } from '@/lib/utils'
-import { DEMO_CM_DATA } from '@/lib/demo-data'
+
 
 export default async function CMHome() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user && process.env.NEXT_PUBLIC_DEMO_MODE !== 'true') redirect('/login')
-
-  if (process.env.NEXT_PUBLIC_DEMO_MODE === 'true' && !user) {
-    const { coaches: coachList, escalations, sessionsByCoach } = DEMO_CM_DATA
-    const totalCompleted = Object.values(sessionsByCoach).reduce((sum, s) => sum + s.completed, 0)
-    const totalNoShows = Object.values(sessionsByCoach).reduce((sum, s) => sum + s.noShow, 0)
-
-    return (
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-xl font-bold">Cluster Manager Dashboard</h1>
-          <p className="text-sm text-muted-foreground">Last 30 days</p>
-        </div>
-
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <KPICard label="Coaches" value={coachList.length} />
-          <KPICard label="Sessions completed" value={totalCompleted} />
-          <KPICard label="No-shows" value={totalNoShows} />
-          <KPICard label="Open escalations" value={escalations.length} />
-        </div>
-
-        {escalations.length > 0 && (
-          <Card className="border-red-200 bg-red-50">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm flex items-center gap-2 text-red-800">
-                <AlertCircle className="h-4 w-4" />
-                Needs attention ({escalations.length} open escalations)
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="pb-4 space-y-2">
-              {escalations.map((esc: any) => (
-                <div key={esc.id} className="flex items-center justify-between gap-2">
-                  <div className="text-sm text-red-900">
-                    <span className="font-medium">{esc.teacher?.name}</span>
-                    {' · '}
-                    <span className="text-red-700">{esc.trigger_type.replace(/_/g, ' ')}</span>
-                    {' · '}
-                    <span className="text-red-600 text-xs">Coach: {esc.coach?.name}</span>
-                  </div>
-                  <span className="text-xs text-red-600">{formatDate(esc.auto_created_at)}</span>
-                </div>
-              ))}
-              <Button asChild variant="outline" size="sm" className="mt-2 border-red-300 text-red-700">
-                <Link href="/cm/coaches">View all escalations</Link>
-              </Button>
-            </CardContent>
-          </Card>
-        )}
-
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm">Your coaches</CardTitle>
-          </CardHeader>
-          <CardContent className="pb-4 space-y-1">
-            {coachList.map((coach: any) => {
-              const stats = (sessionsByCoach as any)[coach.id] ?? { completed: 0, noShow: 0 }
-              return (
-                <Link key={coach.id} href={`/cm/coaches/${coach.id}`}>
-                  <div className="flex items-center justify-between p-2 rounded-lg hover:bg-muted/40 transition-colors cursor-pointer">
-                    <span className="text-sm font-medium">{coach.name}</span>
-                    <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                      <span>{stats.completed} done</span>
-                      {stats.noShow > 0 && <span className="text-red-600">{stats.noShow} no-shows</span>}
-                      <ArrowRight className="h-3.5 w-3.5" />
-                    </div>
-                  </div>
-                </Link>
-              )
-            })}
-          </CardContent>
-        </Card>
-      </div>
-    )
-  }
+  if (!user) redirect('/login')
 
   const { data: profile } = await supabase
     .from('profiles')
@@ -130,75 +54,82 @@ export default async function CMHome() {
   const noShowCount = sessions.filter((s: any) => s.status === 'no_show').length
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
+      {/* Header */}
       <div>
-        <h1 className="text-xl font-bold">Cluster Manager Dashboard</h1>
-        <p className="text-sm text-muted-foreground">Last 30 days</p>
+        <h1 className="text-2xl font-bold tracking-tight">Cluster Overview</h1>
+        <p className="text-muted-foreground mt-1">Last 30 days</p>
       </div>
 
       {/* KPIs */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <KPICard label="Coaches" value={coachList.length} />
-        <KPICard label="Sessions completed" value={completedCount} />
+        <KPICard label="Sessions done" value={completedCount} />
         <KPICard label="No-shows" value={noShowCount} />
-        <KPICard label="Open escalations" value={escalations.length} />
+        <KPICard label="Escalations" value={escalations.length} />
       </div>
 
-      {/* Today's attention */}
+      {/* Escalations */}
       {escalations.length > 0 && (
-        <Card className="border-red-200 bg-red-50">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm flex items-center gap-2 text-red-800">
-              <AlertCircle className="h-4 w-4" />
-              Needs attention ({escalations.length} open escalations)
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="pb-4 space-y-2">
+        <div className="rounded-xl bg-red-50 border border-red-200/60 p-5">
+          <div className="flex items-center gap-2.5 mb-4">
+            <div className="w-8 h-8 rounded-lg bg-red-100 flex items-center justify-center">
+              <AlertCircle className="h-4 w-4 text-red-600" />
+            </div>
+            <p className="text-sm font-semibold text-red-800">
+              {escalations.length} open escalation{escalations.length !== 1 ? 's' : ''}
+            </p>
+          </div>
+          <div className="space-y-2.5 ml-[42px]">
             {escalations.map((esc: any) => (
               <div key={esc.id} className="flex items-center justify-between gap-2">
                 <div className="text-sm text-red-900">
                   <span className="font-medium">{esc.teacher?.name}</span>
-                  {' · '}
-                  <span className="text-red-700">{esc.trigger_type.replace(/_/g, ' ')}</span>
-                  {' · '}
-                  <span className="text-red-600 text-xs">Coach: {esc.coach?.name}</span>
+                  <span className="text-red-600"> · {esc.trigger_type.replace(/_/g, ' ')}</span>
+                  <span className="text-red-500 text-xs"> · Coach: {esc.coach?.name}</span>
                 </div>
-                <span className="text-xs text-red-600">{formatDate(esc.auto_created_at)}</span>
+                <span className="text-xs text-red-500 shrink-0">{formatDate(esc.auto_created_at)}</span>
               </div>
             ))}
-            <Button asChild variant="outline" size="sm" className="mt-2 border-red-300 text-red-700">
+          </div>
+          <div className="ml-[42px] mt-4">
+            <Button asChild variant="outline" size="sm" className="border-red-200 text-red-700 hover:bg-red-100">
               <Link href="/cm/coaches">View all escalations</Link>
             </Button>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       )}
 
       {/* Coach quick links */}
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm">Your coaches</CardTitle>
-        </CardHeader>
-        <CardContent className="pb-4 space-y-1">
-          {coachList.map((coach: any) => {
-            const coachSessions = sessions.filter((s: any) => s.coach_id === coach.id)
-            const coachCompleted = coachSessions.filter((s: any) => s.status === 'completed').length
-            const coachNoShows = coachSessions.filter((s: any) => s.status === 'no_show').length
+      <div>
+        <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3">Your Coaches</h2>
+        <Card>
+          <CardContent className="py-2 divide-y divide-border/50">
+            {coachList.length === 0 ? (
+              <p className="text-sm text-muted-foreground py-8 text-center">No coaches assigned to your cluster yet.</p>
+            ) : (
+              coachList.map((coach: any) => {
+                const coachSessions = sessions.filter((s: any) => s.coach_id === coach.id)
+                const coachCompleted = coachSessions.filter((s: any) => s.status === 'completed').length
+                const coachNoShows = coachSessions.filter((s: any) => s.status === 'no_show').length
 
-            return (
-              <Link key={coach.id} href={`/cm/coaches/${coach.id}`}>
-                <div className="flex items-center justify-between p-2 rounded-lg hover:bg-muted/40 transition-colors cursor-pointer">
-                  <span className="text-sm font-medium">{coach.name}</span>
-                  <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                    <span>{coachCompleted} done</span>
-                    {coachNoShows > 0 && <span className="text-red-600">{coachNoShows} no-shows</span>}
-                    <ArrowRight className="h-3.5 w-3.5" />
-                  </div>
-                </div>
-              </Link>
-            )
-          })}
-        </CardContent>
-      </Card>
+                return (
+                  <Link key={coach.id} href={`/cm/coaches/${coach.id}`}>
+                    <div className="group flex items-center justify-between py-3 px-1 transition-colors hover:bg-muted/30 rounded-lg -mx-1 px-2">
+                      <span className="text-sm font-medium group-hover:text-primary transition-colors">{coach.name}</span>
+                      <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                        <span className="tabular-nums">{coachCompleted} done</span>
+                        {coachNoShows > 0 && <span className="text-red-600 font-medium">{coachNoShows} no-shows</span>}
+                        <ChevronRight className="h-3.5 w-3.5 text-muted-foreground/40 group-hover:text-primary/50 transition-colors" />
+                      </div>
+                    </div>
+                  </Link>
+                )
+              })
+            )}
+          </CardContent>
+        </Card>
+      </div>
     </div>
   )
 }

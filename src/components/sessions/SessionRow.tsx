@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { Badge } from '@/components/ui/badge'
 import { RYGBadge } from '@/components/shared/RYGBadge'
 import { formatTime } from '@/lib/utils'
-import { Phone, Video, Users, Clock, CheckCircle2, XCircle, AlertCircle } from 'lucide-react'
+import { Phone, Video, Users, CheckCircle2, XCircle, AlertCircle } from 'lucide-react'
 import type { Session, Teacher, RYGStatus, ConfirmationStatus } from '@/lib/supabase/types'
 import { cn } from '@/lib/utils'
 
@@ -46,14 +46,14 @@ export function SessionRow({ session, showDate = false }: SessionRowProps) {
     <Link
       href={isCompleted ? `/coach/sessions/${session.id}/after` : `/coach/sessions/${session.id}`}
       className={cn(
-        'flex items-center gap-4 px-4 py-3 rounded-xl bg-card border shadow-sm',
-        'hover:shadow-md hover:-translate-y-px transition-all duration-150',
-        isCompleted && 'opacity-60'
+        'group flex items-center gap-4 px-4 py-3.5 rounded-xl bg-card border',
+        'hover:shadow-md hover:border-primary/15 hover:-translate-y-px transition-all duration-200',
+        isCompleted && 'opacity-55'
       )}
     >
       {/* Time column */}
       <div className="w-14 shrink-0 text-right">
-        <p className="text-sm font-semibold tabular-nums">{formatTime(session.scheduled_at)}</p>
+        <p className="text-sm font-bold tabular-nums text-foreground/80">{formatTime(session.scheduled_at)}</p>
         {showDate && (
           <p className="text-[11px] text-muted-foreground mt-0.5">
             {new Date(session.scheduled_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}
@@ -62,12 +62,12 @@ export function SessionRow({ session, showDate = false }: SessionRowProps) {
       </div>
 
       {/* Divider */}
-      <div className="w-px self-stretch bg-border shrink-0" />
+      <div className="w-px self-stretch bg-border/60 shrink-0" />
 
       {/* Teacher info */}
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
-          <span className="text-sm font-semibold truncate">{session.teacher.name}</span>
+          <span className="text-sm font-semibold truncate group-hover:text-primary transition-colors">{session.teacher.name}</span>
           {session.teacher.ryg && <RYGBadge status={session.teacher.ryg.status} showLabel={false} />}
         </div>
         <p className="text-xs text-muted-foreground truncate mt-0.5">
@@ -78,24 +78,24 @@ export function SessionRow({ session, showDate = false }: SessionRowProps) {
 
       {/* Focus tag */}
       {session.focus_tag && (
-        <Badge variant="outline" className="hidden sm:inline-flex text-xs shrink-0">
+        <Badge variant="outline" className="hidden sm:inline-flex text-xs shrink-0 rounded-lg">
           {session.focus_tag}
         </Badge>
       )}
 
       {/* Status & indicators */}
       <div className="flex items-center gap-2 shrink-0">
-        <ChannelIcon className="h-3.5 w-3.5 text-muted-foreground" />
+        <ChannelIcon className="h-3.5 w-3.5 text-muted-foreground/60" />
         <ConfIcon
           className={cn(
             'h-3.5 w-3.5',
             session.confirmation_status === 'confirmed'   ? 'text-emerald-500' :
             session.confirmation_status === 'no_response' ? 'text-red-400'     :
-            'text-muted-foreground'
+            'text-muted-foreground/50'
           )}
         />
         <span className={cn(
-          'text-[11px] px-2 py-0.5 rounded-full border font-semibold',
+          'text-[11px] px-2.5 py-0.5 rounded-lg border font-semibold',
           status.className
         )}>
           {status.label}

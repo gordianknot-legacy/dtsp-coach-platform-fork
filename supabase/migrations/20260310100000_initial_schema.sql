@@ -1,10 +1,37 @@
 -- =============================================================================
--- DTSP Coach Platform — Initial Schema
--- Run in Supabase SQL Editor or via supabase db push
+-- DTSP Coach Platform — Initial Schema (clean install)
 -- =============================================================================
 
--- Enable UUID extension
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+-- Cleanup from any partial prior run
+DROP TABLE IF EXISTS vba_student_results CASCADE;
+DROP TABLE IF EXISTS vba_sessions CASCADE;
+DROP TABLE IF EXISTS cm_commitments CASCADE;
+DROP TABLE IF EXISTS escalations CASCADE;
+DROP TABLE IF EXISTS movement_plans CASCADE;
+DROP TABLE IF EXISTS teacher_ryg CASCADE;
+DROP TABLE IF EXISTS reschedules CASCADE;
+DROP TABLE IF EXISTS action_steps CASCADE;
+DROP TABLE IF EXISTS session_notes CASCADE;
+DROP TABLE IF EXISTS sessions CASCADE;
+DROP TABLE IF EXISTS assignments CASCADE;
+DROP TABLE IF EXISTS teachers CASCADE;
+DROP TABLE IF EXISTS session_templates CASCADE;
+DROP TABLE IF EXISTS program_standards CASCADE;
+DROP TABLE IF EXISTS org_units CASCADE;
+DROP TABLE IF EXISTS profiles CASCADE;
+
+DROP TYPE IF EXISTS user_role CASCADE;
+DROP TYPE IF EXISTS ryg_status CASCADE;
+DROP TYPE IF EXISTS session_status CASCADE;
+DROP TYPE IF EXISTS session_type CASCADE;
+DROP TYPE IF EXISTS confirmation_status CASCADE;
+DROP TYPE IF EXISTS escalation_status CASCADE;
+DROP TYPE IF EXISTS action_step_status CASCADE;
+DROP TYPE IF EXISTS org_unit_type CASCADE;
+DROP TYPE IF EXISTS teacher_status CASCADE;
+DROP TYPE IF EXISTS session_channel CASCADE;
+DROP TYPE IF EXISTS escalation_trigger CASCADE;
+DROP TYPE IF EXISTS reschedule_reason CASCADE;
 
 -- =============================================================================
 -- ENUMS
@@ -27,30 +54,26 @@ CREATE TYPE reschedule_reason AS ENUM ('teacher_unavailable', 'coach_unavailable
 -- CORE TABLES
 -- =============================================================================
 
--- Profiles (extends auth.users)
 CREATE TABLE profiles (
   id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   role user_role NOT NULL,
-  cohort_id UUID, -- FK added after org_units table
+  cohort_id UUID,
   name TEXT NOT NULL,
   phone TEXT,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- Org hierarchy (state → district → cohort)
 CREATE TABLE org_units (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name TEXT NOT NULL,
   type org_unit_type NOT NULL,
   parent_id UUID REFERENCES org_units(id),
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- Add FK from profiles to org_units
 ALTER TABLE profiles ADD CONSTRAINT profiles_cohort_id_fkey
   FOREIGN KEY (cohort_id) REFERENCES org_units(id);
 
--- Program standards (key-value config per cohort, overrideable)
 CREATE TABLE program_standards (
   cohort_id UUID NOT NULL REFERENCES org_units(id) ON DELETE CASCADE,
   key TEXT NOT NULL,
@@ -59,9 +82,8 @@ CREATE TABLE program_standards (
   PRIMARY KEY (cohort_id, key)
 );
 
--- Session templates (rubric + checklists per cohort)
 CREATE TABLE session_templates (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   cohort_id UUID NOT NULL REFERENCES org_units(id) ON DELETE CASCADE,
   focus_categories JSONB NOT NULL DEFAULT '["Literacy", "Numeracy", "Relationship", "Off-script"]',
   required_fields JSONB NOT NULL DEFAULT '["what_discussed", "focus_tag"]',
@@ -72,14 +94,13 @@ CREATE TABLE session_templates (
   UNIQUE (cohort_id)
 );
 
--- Teachers
 CREATE TABLE teachers (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name TEXT NOT NULL,
   phone TEXT,
   school_name TEXT NOT NULL DEFAULT '',
   udise_code TEXT,
-  block_tag TEXT, -- Not a hierarchy level, just a filter tag
+  block_tag TEXT,
   designation TEXT,
   hm_name TEXT,
   hm_phone TEXT,
@@ -89,7 +110,6 @@ CREATE TABLE teachers (
   CONSTRAINT teachers_udise_unique UNIQUE (udise_code)
 );
 
--- Assignments (coach ↔ teacher, one active assignment per teacher)
 CREATE TABLE assignments (
   teacher_id UUID NOT NULL REFERENCES teachers(id) ON DELETE CASCADE,
   coach_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
@@ -98,9 +118,8 @@ CREATE TABLE assignments (
   PRIMARY KEY (teacher_id, coach_id)
 );
 
--- Sessions
 CREATE TABLE sessions (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   teacher_id UUID NOT NULL REFERENCES teachers(id),
   coach_id UUID NOT NULL REFERENCES profiles(id),
   session_type session_type NOT NULL DEFAULT 'coaching_call',
@@ -109,7 +128,7 @@ CREATE TABLE sessions (
   focus_tag TEXT,
   channel session_channel NOT NULL DEFAULT 'google_meet',
   meet_link TEXT,
-  duration_mins INTEGER, -- Coach-entered; enriched by webhook later
+  duration_mins INTEGER,
   confirmation_status confirmation_status NOT NULL DEFAULT 'pending',
   summary_sent_at TIMESTAMPTZ,
   next_touch_window TIMESTAMPTZ,
@@ -118,9 +137,8 @@ CREATE TABLE sessions (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- Session notes (one per session)
 CREATE TABLE session_notes (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   session_id UUID NOT NULL REFERENCES sessions(id) ON DELETE CASCADE,
   what_discussed TEXT,
   what_decided TEXT,
@@ -134,9 +152,8 @@ CREATE TABLE session_notes (
   UNIQUE (session_id)
 );
 
--- Action steps (up to 3 per session, can be carried forward)
 CREATE TABLE action_steps (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   session_id UUID NOT NULL REFERENCES sessions(id) ON DELETE CASCADE,
   teacher_id UUID NOT NULL REFERENCES teachers(id),
   description TEXT NOT NULL,
@@ -146,19 +163,17 @@ CREATE TABLE action_steps (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- Reschedules (tracks counter per teacher for escalation trigger)
 CREATE TABLE reschedules (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   session_id UUID NOT NULL REFERENCES sessions(id) ON DELETE CASCADE,
   reason_category reschedule_reason NOT NULL DEFAULT 'other',
   new_window TIMESTAMPTZ,
-  counter INTEGER NOT NULL DEFAULT 1, -- rolling count for this teacher
+  counter INTEGER NOT NULL DEFAULT 1,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- Teacher RYG status (current + audit trail via insert-only)
 CREATE TABLE teacher_ryg (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   teacher_id UUID NOT NULL REFERENCES teachers(id) ON DELETE CASCADE,
   status ryg_status NOT NULL,
   set_by UUID NOT NULL REFERENCES profiles(id),
@@ -167,9 +182,8 @@ CREATE TABLE teacher_ryg (
   dimensions_json JSONB NOT NULL DEFAULT '{}'
 );
 
--- Movement plans (CM-set plans to move teacher from R/Y toward G)
 CREATE TABLE movement_plans (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   teacher_id UUID NOT NULL REFERENCES teachers(id) ON DELETE CASCADE,
   cm_id UUID NOT NULL REFERENCES profiles(id),
   target_status ryg_status NOT NULL,
@@ -179,9 +193,8 @@ CREATE TABLE movement_plans (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- Escalations (auto-created by triggers or manually by CM)
 CREATE TABLE escalations (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   trigger_type escalation_trigger NOT NULL,
   teacher_id UUID NOT NULL REFERENCES teachers(id),
   coach_id UUID NOT NULL REFERENCES profiles(id),
@@ -194,9 +207,8 @@ CREATE TABLE escalations (
   actioned_at TIMESTAMPTZ
 );
 
--- CM commitments (saved during 1:1 review)
 CREATE TABLE cm_commitments (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   cm_id UUID NOT NULL REFERENCES profiles(id),
   coach_id UUID NOT NULL REFERENCES profiles(id),
   session_date DATE NOT NULL DEFAULT CURRENT_DATE,
@@ -205,9 +217,8 @@ CREATE TABLE cm_commitments (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- Phase 2 tables (created now, used in Week 7)
 CREATE TABLE vba_sessions (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   teacher_id UUID NOT NULL REFERENCES teachers(id),
   coach_id UUID NOT NULL REFERENCES profiles(id),
   scheduled_at TIMESTAMPTZ NOT NULL,
@@ -219,11 +230,11 @@ CREATE TABLE vba_sessions (
 );
 
 CREATE TABLE vba_student_results (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   vba_session_id UUID NOT NULL REFERENCES vba_sessions(id) ON DELETE CASCADE,
   student_name TEXT NOT NULL,
-  student_number INTEGER NOT NULL, -- 1-indexed
-  literacy_results JSONB NOT NULL DEFAULT '{}', -- { item_id: 'pass'|'fail'|null }
+  student_number INTEGER NOT NULL,
+  literacy_results JSONB NOT NULL DEFAULT '{}',
   numeracy_results JSONB NOT NULL DEFAULT '{}',
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
@@ -277,9 +288,7 @@ CREATE TRIGGER vba_student_results_updated_at BEFORE UPDATE ON vba_student_resul
   FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 
 -- =============================================================================
--- TRIGGER: Auto-create escalation when reschedule counter crosses threshold
--- Threshold stored in program_standards as key='reschedule_escalation_threshold'
--- Default: 3
+-- TRIGGER: Auto-create escalation on reschedule threshold
 -- =============================================================================
 
 CREATE OR REPLACE FUNCTION check_reschedule_escalation()
@@ -291,14 +300,12 @@ DECLARE
   v_threshold INTEGER;
   v_count INTEGER;
 BEGIN
-  -- Get session details
   SELECT s.teacher_id, s.coach_id, t.cohort_id
   INTO v_teacher_id, v_coach_id, v_cohort_id
   FROM sessions s
   JOIN teachers t ON t.id = s.teacher_id
   WHERE s.id = NEW.session_id;
 
-  -- Get threshold from program_standards (default 3)
   SELECT COALESCE(value::INTEGER, 3)
   INTO v_threshold
   FROM program_standards
@@ -307,7 +314,6 @@ BEGIN
 
   IF v_threshold IS NULL THEN v_threshold := 3; END IF;
 
-  -- Count reschedules for this teacher in last 30 days
   SELECT COUNT(*)
   INTO v_count
   FROM reschedules r
@@ -315,7 +321,6 @@ BEGIN
   WHERE s.teacher_id = v_teacher_id
     AND r.created_at > NOW() - INTERVAL '30 days';
 
-  -- Create escalation if threshold crossed and no open one exists
   IF v_count >= v_threshold THEN
     INSERT INTO escalations (trigger_type, teacher_id, coach_id, cohort_id, status)
     SELECT 'reschedule_threshold', v_teacher_id, v_coach_id, v_cohort_id, 'open'
@@ -334,18 +339,6 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 CREATE TRIGGER reschedule_escalation_trigger
   AFTER INSERT ON reschedules
   FOR EACH ROW EXECUTE FUNCTION check_reschedule_escalation();
-
--- =============================================================================
--- DEFAULT PROGRAM STANDARDS (global defaults — cohort can override)
--- =============================================================================
-
--- These are inserted via the admin UI, but schema shows expected keys:
--- reschedule_escalation_threshold: '3'
--- vba_overdue_days: '30'
--- chronic_non_confirmation_count: '3'
--- session_target_monthly: '2'
--- ryg_green_days_threshold: '14'
--- ryg_red_days_threshold: '21'
 
 -- =============================================================================
 -- ROW LEVEL SECURITY
@@ -368,311 +361,160 @@ ALTER TABLE cm_commitments ENABLE ROW LEVEL SECURITY;
 ALTER TABLE vba_sessions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE vba_student_results ENABLE ROW LEVEL SECURITY;
 
--- Helper: get current user's role
+-- Helper functions
 CREATE OR REPLACE FUNCTION current_user_role()
 RETURNS user_role AS $$
   SELECT role FROM profiles WHERE id = auth.uid()
 $$ LANGUAGE SQL SECURITY DEFINER STABLE;
 
--- Helper: get current user's cohort_id
 CREATE OR REPLACE FUNCTION current_user_cohort()
 RETURNS UUID AS $$
   SELECT cohort_id FROM profiles WHERE id = auth.uid()
 $$ LANGUAGE SQL SECURITY DEFINER STABLE;
 
--- ---------------------
 -- PROFILES
--- ---------------------
--- Users can read their own profile
 CREATE POLICY "profiles_self_read" ON profiles FOR SELECT TO authenticated
   USING (id = auth.uid());
-
--- Admin can read all profiles in their cohort
 CREATE POLICY "profiles_admin_read" ON profiles FOR SELECT TO authenticated
   USING (current_user_role() = 'admin');
-
--- CM can read coach profiles in their cohort
 CREATE POLICY "profiles_cm_read" ON profiles FOR SELECT TO authenticated
-  USING (
-    current_user_role() = 'cm'
-    AND cohort_id = current_user_cohort()
-  );
-
--- Users can update their own profile (name, phone)
+  USING (current_user_role() = 'cm' AND cohort_id = current_user_cohort());
 CREATE POLICY "profiles_self_update" ON profiles FOR UPDATE TO authenticated
   USING (id = auth.uid());
-
--- Admin can insert profiles (creating accounts)
 CREATE POLICY "profiles_admin_insert" ON profiles FOR INSERT TO authenticated
   WITH CHECK (current_user_role() = 'admin');
 
--- ---------------------
 -- ORG UNITS
--- ---------------------
 CREATE POLICY "org_units_read" ON org_units FOR SELECT TO authenticated
-  USING (true); -- All authenticated users can read org structure
-
+  USING (true);
 CREATE POLICY "org_units_admin_write" ON org_units FOR ALL TO authenticated
   USING (current_user_role() = 'admin')
   WITH CHECK (current_user_role() = 'admin');
 
--- ---------------------
 -- PROGRAM STANDARDS
--- ---------------------
 CREATE POLICY "standards_read" ON program_standards FOR SELECT TO authenticated
   USING (true);
-
 CREATE POLICY "standards_admin_write" ON program_standards FOR ALL TO authenticated
   USING (current_user_role() = 'admin')
   WITH CHECK (current_user_role() = 'admin');
 
--- ---------------------
 -- SESSION TEMPLATES
--- ---------------------
 CREATE POLICY "templates_read" ON session_templates FOR SELECT TO authenticated
   USING (true);
-
 CREATE POLICY "templates_admin_write" ON session_templates FOR ALL TO authenticated
   USING (current_user_role() = 'admin')
   WITH CHECK (current_user_role() = 'admin');
 
--- ---------------------
 -- TEACHERS
--- ---------------------
--- Coach: sees only assigned teachers
 CREATE POLICY "teachers_coach_read" ON teachers FOR SELECT TO authenticated
-  USING (
-    current_user_role() = 'coach'
-    AND id IN (
-      SELECT teacher_id FROM assignments
-      WHERE coach_id = auth.uid() AND is_active = TRUE
-    )
-  );
-
--- CM: sees all teachers in their cohort
+  USING (current_user_role() = 'coach' AND id IN (
+    SELECT teacher_id FROM assignments WHERE coach_id = auth.uid() AND is_active = TRUE
+  ));
 CREATE POLICY "teachers_cm_read" ON teachers FOR SELECT TO authenticated
-  USING (
-    current_user_role() IN ('cm', 'admin', 'observer')
-    AND cohort_id = current_user_cohort()
-  );
-
--- Admin: full access to teachers in their cohort
+  USING (current_user_role() IN ('cm', 'admin', 'observer') AND cohort_id = current_user_cohort());
 CREATE POLICY "teachers_admin_write" ON teachers FOR ALL TO authenticated
   USING (current_user_role() = 'admin' AND cohort_id = current_user_cohort())
   WITH CHECK (current_user_role() = 'admin' AND cohort_id = current_user_cohort());
 
--- ---------------------
 -- ASSIGNMENTS
--- ---------------------
 CREATE POLICY "assignments_coach_read" ON assignments FOR SELECT TO authenticated
-  USING (
-    current_user_role() = 'coach' AND coach_id = auth.uid()
-  );
-
+  USING (current_user_role() = 'coach' AND coach_id = auth.uid());
 CREATE POLICY "assignments_cm_read" ON assignments FOR SELECT TO authenticated
-  USING (
-    current_user_role() = 'cm'
-    AND coach_id IN (
-      SELECT id FROM profiles WHERE cohort_id = current_user_cohort()
-    )
-  );
-
+  USING (current_user_role() = 'cm' AND coach_id IN (
+    SELECT id FROM profiles WHERE cohort_id = current_user_cohort()
+  ));
 CREATE POLICY "assignments_admin_all" ON assignments FOR ALL TO authenticated
   USING (current_user_role() = 'admin')
   WITH CHECK (current_user_role() = 'admin');
 
--- ---------------------
 -- SESSIONS
--- ---------------------
--- Coach sees only their own sessions
 CREATE POLICY "sessions_coach_all" ON sessions FOR ALL TO authenticated
   USING (current_user_role() = 'coach' AND coach_id = auth.uid())
   WITH CHECK (current_user_role() = 'coach' AND coach_id = auth.uid());
-
--- CM sees sessions of all coaches in their cohort
 CREATE POLICY "sessions_cm_read" ON sessions FOR SELECT TO authenticated
-  USING (
-    current_user_role() = 'cm'
-    AND coach_id IN (
-      SELECT id FROM profiles WHERE cohort_id = current_user_cohort() AND role = 'coach'
-    )
-  );
-
--- Admin sees all sessions in cohort
+  USING (current_user_role() = 'cm' AND coach_id IN (
+    SELECT id FROM profiles WHERE cohort_id = current_user_cohort() AND role = 'coach'
+  ));
 CREATE POLICY "sessions_admin_read" ON sessions FOR SELECT TO authenticated
-  USING (
-    current_user_role() = 'admin'
-    AND coach_id IN (
-      SELECT id FROM profiles WHERE cohort_id = current_user_cohort()
-    )
-  );
-
--- Observer: same as admin (read-only)
+  USING (current_user_role() = 'admin' AND coach_id IN (
+    SELECT id FROM profiles WHERE cohort_id = current_user_cohort()
+  ));
 CREATE POLICY "sessions_observer_read" ON sessions FOR SELECT TO authenticated
   USING (current_user_role() = 'observer');
 
--- ---------------------
 -- SESSION NOTES
--- ---------------------
 CREATE POLICY "notes_coach_all" ON session_notes FOR ALL TO authenticated
-  USING (
-    current_user_role() = 'coach'
-    AND session_id IN (SELECT id FROM sessions WHERE coach_id = auth.uid())
-  )
-  WITH CHECK (
-    current_user_role() = 'coach'
-    AND session_id IN (SELECT id FROM sessions WHERE coach_id = auth.uid())
-  );
-
+  USING (current_user_role() = 'coach' AND session_id IN (SELECT id FROM sessions WHERE coach_id = auth.uid()))
+  WITH CHECK (current_user_role() = 'coach' AND session_id IN (SELECT id FROM sessions WHERE coach_id = auth.uid()));
 CREATE POLICY "notes_cm_read" ON session_notes FOR SELECT TO authenticated
-  USING (
-    current_user_role() IN ('cm', 'admin', 'observer')
-    AND session_id IN (
-      SELECT s.id FROM sessions s
-      JOIN profiles p ON p.id = s.coach_id
-      WHERE p.cohort_id = current_user_cohort()
-    )
-  );
+  USING (current_user_role() IN ('cm', 'admin', 'observer') AND session_id IN (
+    SELECT s.id FROM sessions s JOIN profiles p ON p.id = s.coach_id WHERE p.cohort_id = current_user_cohort()
+  ));
 
--- ---------------------
 -- ACTION STEPS
--- ---------------------
 CREATE POLICY "action_steps_coach_all" ON action_steps FOR ALL TO authenticated
-  USING (
-    current_user_role() = 'coach'
-    AND session_id IN (SELECT id FROM sessions WHERE coach_id = auth.uid())
-  )
-  WITH CHECK (
-    current_user_role() = 'coach'
-    AND session_id IN (SELECT id FROM sessions WHERE coach_id = auth.uid())
-  );
-
+  USING (current_user_role() = 'coach' AND session_id IN (SELECT id FROM sessions WHERE coach_id = auth.uid()))
+  WITH CHECK (current_user_role() = 'coach' AND session_id IN (SELECT id FROM sessions WHERE coach_id = auth.uid()));
 CREATE POLICY "action_steps_cm_read" ON action_steps FOR SELECT TO authenticated
   USING (current_user_role() IN ('cm', 'admin', 'observer'));
 
--- ---------------------
 -- RESCHEDULES
--- ---------------------
 CREATE POLICY "reschedules_coach_all" ON reschedules FOR ALL TO authenticated
-  USING (
-    current_user_role() = 'coach'
-    AND session_id IN (SELECT id FROM sessions WHERE coach_id = auth.uid())
-  )
-  WITH CHECK (
-    current_user_role() = 'coach'
-    AND session_id IN (SELECT id FROM sessions WHERE coach_id = auth.uid())
-  );
-
+  USING (current_user_role() = 'coach' AND session_id IN (SELECT id FROM sessions WHERE coach_id = auth.uid()))
+  WITH CHECK (current_user_role() = 'coach' AND session_id IN (SELECT id FROM sessions WHERE coach_id = auth.uid()));
 CREATE POLICY "reschedules_cm_read" ON reschedules FOR SELECT TO authenticated
   USING (current_user_role() IN ('cm', 'admin'));
 
--- ---------------------
 -- TEACHER RYG
--- ---------------------
 CREATE POLICY "ryg_coach_read" ON teacher_ryg FOR SELECT TO authenticated
-  USING (
-    current_user_role() = 'coach'
-    AND teacher_id IN (
-      SELECT teacher_id FROM assignments WHERE coach_id = auth.uid() AND is_active = TRUE
-    )
-  );
-
+  USING (current_user_role() = 'coach' AND teacher_id IN (
+    SELECT teacher_id FROM assignments WHERE coach_id = auth.uid() AND is_active = TRUE
+  ));
 CREATE POLICY "ryg_coach_insert" ON teacher_ryg FOR INSERT TO authenticated
-  WITH CHECK (
-    current_user_role() = 'coach'
-    AND teacher_id IN (
-      SELECT teacher_id FROM assignments WHERE coach_id = auth.uid() AND is_active = TRUE
-    )
-    AND set_by = auth.uid()
-  );
-
+  WITH CHECK (current_user_role() = 'coach' AND teacher_id IN (
+    SELECT teacher_id FROM assignments WHERE coach_id = auth.uid() AND is_active = TRUE
+  ) AND set_by = auth.uid());
 CREATE POLICY "ryg_cm_all" ON teacher_ryg FOR ALL TO authenticated
   USING (current_user_role() IN ('cm', 'admin'))
   WITH CHECK (current_user_role() IN ('cm', 'admin'));
 
--- ---------------------
 -- MOVEMENT PLANS
--- ---------------------
 CREATE POLICY "movement_cm_all" ON movement_plans FOR ALL TO authenticated
   USING (current_user_role() = 'cm' AND cm_id = auth.uid())
   WITH CHECK (current_user_role() = 'cm' AND cm_id = auth.uid());
-
 CREATE POLICY "movement_admin_read" ON movement_plans FOR SELECT TO authenticated
   USING (current_user_role() = 'admin');
-
 CREATE POLICY "movement_coach_read" ON movement_plans FOR SELECT TO authenticated
-  USING (
-    current_user_role() = 'coach'
-    AND teacher_id IN (
-      SELECT teacher_id FROM assignments WHERE coach_id = auth.uid() AND is_active = TRUE
-    )
-  );
+  USING (current_user_role() = 'coach' AND teacher_id IN (
+    SELECT teacher_id FROM assignments WHERE coach_id = auth.uid() AND is_active = TRUE
+  ));
 
--- ---------------------
 -- ESCALATIONS
--- ---------------------
 CREATE POLICY "escalations_coach_read" ON escalations FOR SELECT TO authenticated
   USING (current_user_role() = 'coach' AND coach_id = auth.uid());
-
 CREATE POLICY "escalations_cm_all" ON escalations FOR ALL TO authenticated
-  USING (
-    current_user_role() = 'cm'
-    AND cohort_id = current_user_cohort()
-  )
-  WITH CHECK (
-    current_user_role() = 'cm'
-    AND cohort_id = current_user_cohort()
-  );
-
+  USING (current_user_role() = 'cm' AND cohort_id = current_user_cohort())
+  WITH CHECK (current_user_role() = 'cm' AND cohort_id = current_user_cohort());
 CREATE POLICY "escalations_admin_read" ON escalations FOR SELECT TO authenticated
   USING (current_user_role() = 'admin');
 
--- ---------------------
 -- CM COMMITMENTS
--- ---------------------
 CREATE POLICY "commitments_cm_all" ON cm_commitments FOR ALL TO authenticated
   USING (current_user_role() = 'cm' AND cm_id = auth.uid())
   WITH CHECK (current_user_role() = 'cm' AND cm_id = auth.uid());
-
 CREATE POLICY "commitments_admin_read" ON cm_commitments FOR SELECT TO authenticated
   USING (current_user_role() = 'admin');
 
--- ---------------------
 -- VBA SESSIONS
--- ---------------------
 CREATE POLICY "vba_coach_all" ON vba_sessions FOR ALL TO authenticated
   USING (current_user_role() = 'coach' AND coach_id = auth.uid())
   WITH CHECK (current_user_role() = 'coach' AND coach_id = auth.uid());
-
 CREATE POLICY "vba_cm_read" ON vba_sessions FOR SELECT TO authenticated
   USING (current_user_role() IN ('cm', 'admin', 'observer'));
 
--- ---------------------
 -- VBA STUDENT RESULTS
--- ---------------------
 CREATE POLICY "vba_results_coach_all" ON vba_student_results FOR ALL TO authenticated
-  USING (
-    current_user_role() = 'coach'
-    AND vba_session_id IN (SELECT id FROM vba_sessions WHERE coach_id = auth.uid())
-  )
-  WITH CHECK (
-    current_user_role() = 'coach'
-    AND vba_session_id IN (SELECT id FROM vba_sessions WHERE coach_id = auth.uid())
-  );
-
+  USING (current_user_role() = 'coach' AND vba_session_id IN (SELECT id FROM vba_sessions WHERE coach_id = auth.uid()))
+  WITH CHECK (current_user_role() = 'coach' AND vba_session_id IN (SELECT id FROM vba_sessions WHERE coach_id = auth.uid()));
 CREATE POLICY "vba_results_cm_read" ON vba_student_results FOR SELECT TO authenticated
   USING (current_user_role() IN ('cm', 'admin', 'observer'));
-
--- =============================================================================
--- SEED: Default program standards for reference
--- (Run separately after creating the first cohort via admin UI)
--- =============================================================================
-
--- Example (replace <cohort_uuid> with actual cohort ID):
--- INSERT INTO program_standards (cohort_id, key, value) VALUES
---   ('<cohort_uuid>', 'reschedule_escalation_threshold', '3'),
---   ('<cohort_uuid>', 'vba_overdue_days', '30'),
---   ('<cohort_uuid>', 'chronic_non_confirmation_count', '3'),
---   ('<cohort_uuid>', 'session_target_monthly', '2'),
---   ('<cohort_uuid>', 'ryg_green_days_threshold', '14'),
---   ('<cohort_uuid>', 'ryg_red_days_threshold', '21');

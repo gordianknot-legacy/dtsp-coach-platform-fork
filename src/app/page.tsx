@@ -10,8 +10,6 @@ const ROLE_HOME: Record<UserRole, string> = {
 }
 
 export default async function RootPage() {
-  if (process.env.NEXT_PUBLIC_DEMO_MODE === 'true') redirect('/coach')
-
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 

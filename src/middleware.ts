@@ -2,7 +2,7 @@ import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 import type { UserRole } from '@/lib/supabase/types'
 
-const PUBLIC_ROUTES = ['/login', '/auth/callback', '/demo', '/api/auth/setup']
+const PUBLIC_ROUTES = ['/login', '/auth/callback']
 const ROLE_HOME: Record<UserRole, string> = {
   coach: '/coach',
   cm: '/cm',
@@ -11,11 +11,6 @@ const ROLE_HOME: Record<UserRole, string> = {
 }
 
 export async function middleware(request: NextRequest) {
-  // Demo mode: bypass all auth checks
-  if (process.env.NEXT_PUBLIC_DEMO_MODE === 'true') {
-    return NextResponse.next({ request })
-  }
-
   let supabaseResponse = NextResponse.next({ request })
 
   const supabase = createServerClient(
@@ -46,7 +41,7 @@ export async function middleware(request: NextRequest) {
   // Allow public routes
   if (PUBLIC_ROUTES.some((r) => pathname.startsWith(r))) {
     // If logged in and hitting /login, redirect to their workspace
-    if (user) {
+    if (user && pathname.startsWith('/login')) {
       const { data: profile } = await supabase
         .from('profiles')
         .select('role')
@@ -57,6 +52,14 @@ export async function middleware(request: NextRequest) {
         const home = ROLE_HOME[profile.role as UserRole] ?? '/login'
         return NextResponse.redirect(new URL(home, request.url))
       }
+    }
+    return supabaseResponse
+  }
+
+  // Allow role-select page and switch-role API for authenticated users
+  if (pathname === '/role-select' || pathname === '/api/auth/switch-role') {
+    if (!user) {
+      return NextResponse.redirect(new URL('/login', request.url))
     }
     return supabaseResponse
   }
@@ -89,7 +92,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL(ROLE_HOME[role], request.url))
   }
 
-  // Block cross-role access
+  // Block cross-role access (all 4 allowed users can switch roles, so we respect their current role)
   const protectedPrefixes = ['/coach', '/cm', '/admin', '/observer']
   const accessedPrefix = protectedPrefixes.find((p) => pathname.startsWith(p))
   if (accessedPrefix && !pathname.startsWith(rolePrefix)) {

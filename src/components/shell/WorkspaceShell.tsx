@@ -1,6 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
 import { TopNav } from './TopNav'
-import { DemoBar } from './DemoBar'
 import type { UserRole } from '@/lib/supabase/types'
 
 interface WorkspaceShellProps {
@@ -35,20 +34,12 @@ export async function WorkspaceShell({ role, children }: WorkspaceShellProps) {
     }
   }
 
-  const isDemo = process.env.NEXT_PUBLIC_DEMO_MODE === 'true'
-
-  if (isDemo && !user) {
-    userName = 'IDI-DTSP'
-    if (role === 'cm') escalationCount = 2
-  }
-
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-background">
       <TopNav role={role} userName={userName} escalationCount={escalationCount} />
-      <main className={`flex-1 container mx-auto px-4 py-6 max-w-7xl ${isDemo ? 'pb-14' : ''}`}>
+      <main className="flex-1 container mx-auto px-4 sm:px-6 py-6 sm:py-8 max-w-7xl">
         {children}
       </main>
-      {isDemo && <DemoBar role={role} />}
     </div>
   )
 }

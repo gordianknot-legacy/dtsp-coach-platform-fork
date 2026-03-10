@@ -2,68 +2,13 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Users, GraduationCap, Settings, Upload, UserCog, AlertCircle } from 'lucide-react'
-import { DEMO_ADMIN_COUNTS } from '@/lib/demo-data'
+import { Users, GraduationCap, Settings, Upload, UserCog, AlertCircle, ChevronRight } from 'lucide-react'
+
 
 export default async function AdminHome() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user && process.env.NEXT_PUBLIC_DEMO_MODE !== 'true') redirect('/login')
-
-  if (process.env.NEXT_PUBLIC_DEMO_MODE === 'true' && !user) {
-    const quickLinks = [
-      { href: '/admin/org', icon: Settings, label: 'Org Setup', description: 'Configure hierarchy, add cohorts' },
-      { href: '/admin/users', icon: UserCog, label: 'User Management', description: 'Create coach and CM accounts' },
-      { href: '/admin/rosters', icon: Upload, label: 'Roster Import', description: 'Upload teacher CSV' },
-      { href: '/admin/assignments', icon: Users, label: 'Assignments', description: 'Assign teachers to coaches' },
-      { href: '/admin/standards', icon: GraduationCap, label: 'Standards & Templates', description: 'Configure rubrics, focus categories' },
-    ]
-
-    return (
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-xl font-bold">Admin Dashboard</h1>
-          <p className="text-sm text-muted-foreground">DTSP Coach Platform configuration</p>
-        </div>
-
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          {[
-            { label: 'Coaches', value: DEMO_ADMIN_COUNTS.coaches },
-            { label: 'Active Teachers', value: DEMO_ADMIN_COUNTS.teachers },
-            { label: 'Org Units', value: DEMO_ADMIN_COUNTS.orgUnits },
-            { label: 'Rubrics', value: DEMO_ADMIN_COUNTS.rubrics },
-          ].map((stat) => (
-            <Card key={stat.label}>
-              <CardContent className="pt-4 pb-4 text-center">
-                <p className="text-2xl font-bold">{stat.value}</p>
-                <p className="text-xs text-muted-foreground">{stat.label}</p>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {quickLinks.map((link) => (
-            <Link key={link.href} href={link.href}>
-              <Card className="hover:bg-muted/40 transition-colors cursor-pointer">
-                <CardContent className="pt-4 pb-4 flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-md bg-primary/10 flex items-center justify-center">
-                    <link.icon className="h-4 w-4 text-primary" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium">{link.label}</p>
-                    <p className="text-xs text-muted-foreground">{link.description}</p>
-                  </div>
-                </CardContent>
-              </Card>
-            </Link>
-          ))}
-        </div>
-      </div>
-    )
-  }
+  if (!user) redirect('/login')
 
   const [coachCount, teacherCount, orgCount, standardsExist] = await Promise.all([
     supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('role', 'coach'),
@@ -79,37 +24,38 @@ export default async function AdminHome() {
   if ((standardsExist.count ?? 0) === 0) warnings.push('No rubrics configured — go to Standards & Templates')
 
   const quickLinks = [
-    { href: '/admin/org', icon: Settings, label: 'Org Setup', description: 'Configure hierarchy, add cohorts' },
-    { href: '/admin/users', icon: UserCog, label: 'User Management', description: 'Create coach and CM accounts' },
-    { href: '/admin/rosters', icon: Upload, label: 'Roster Import', description: 'Upload teacher CSV' },
-    { href: '/admin/assignments', icon: Users, label: 'Assignments', description: 'Assign teachers to coaches' },
-    { href: '/admin/standards', icon: GraduationCap, label: 'Standards & Templates', description: 'Configure rubrics, focus categories' },
+    { href: '/admin/org', icon: Settings, label: 'Org Setup', description: 'Configure hierarchy, add cohorts', color: 'bg-blue-500/10 text-blue-600' },
+    { href: '/admin/users', icon: UserCog, label: 'User Management', description: 'Create coach and CM accounts', color: 'bg-violet-500/10 text-violet-600' },
+    { href: '/admin/rosters', icon: Upload, label: 'Roster Import', description: 'Upload teacher CSV', color: 'bg-emerald-500/10 text-emerald-600' },
+    { href: '/admin/assignments', icon: Users, label: 'Assignments', description: 'Assign teachers to coaches', color: 'bg-amber-500/10 text-amber-600' },
+    { href: '/admin/standards', icon: GraduationCap, label: 'Standards & Templates', description: 'Configure rubrics, focus categories', color: 'bg-rose-500/10 text-rose-600' },
   ]
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
+      {/* Header */}
       <div>
-        <h1 className="text-xl font-bold">Admin Dashboard</h1>
-        <p className="text-sm text-muted-foreground">DTSP Coach Platform configuration</p>
+        <h1 className="text-2xl font-bold tracking-tight">Admin Dashboard</h1>
+        <p className="text-muted-foreground mt-1">DTSP Coach Platform configuration</p>
       </div>
 
       {/* Warnings */}
       {warnings.length > 0 && (
-        <Card className="border-amber-200 bg-amber-50">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm flex items-center gap-2 text-amber-800">
-              <AlertCircle className="h-4 w-4" />
+        <div className="rounded-xl bg-amber-50 border border-amber-200/60 p-5">
+          <div className="flex items-center gap-2.5 mb-3">
+            <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center">
+              <AlertCircle className="h-4 w-4 text-amber-600" />
+            </div>
+            <p className="text-sm font-semibold text-amber-800">
               Setup incomplete ({warnings.length} item{warnings.length !== 1 ? 's' : ''})
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="pb-4">
-            <ul className="space-y-1">
-              {warnings.map((w) => (
-                <li key={w} className="text-sm text-amber-700">• {w}</li>
-              ))}
-            </ul>
-          </CardContent>
-        </Card>
+            </p>
+          </div>
+          <ul className="space-y-1.5 ml-[42px]">
+            {warnings.map((w) => (
+              <li key={w} className="text-sm text-amber-700 leading-relaxed">{w}</li>
+            ))}
+          </ul>
+        </div>
       )}
 
       {/* Stats */}
@@ -120,32 +66,36 @@ export default async function AdminHome() {
           { label: 'Org Units', value: orgCount.count ?? 0 },
           { label: 'Rubrics', value: standardsExist.count ?? 0 },
         ].map((stat) => (
-          <Card key={stat.label}>
-            <CardContent className="pt-4 pb-4 text-center">
-              <p className="text-2xl font-bold">{stat.value}</p>
-              <p className="text-xs text-muted-foreground">{stat.label}</p>
+          <Card key={stat.label} className="hover:shadow-md transition-shadow">
+            <CardContent className="pt-5 pb-5 text-center">
+              <p className="text-3xl font-bold tabular-nums">{stat.value}</p>
+              <p className="text-xs text-muted-foreground mt-1.5 font-medium">{stat.label}</p>
             </CardContent>
           </Card>
         ))}
       </div>
 
       {/* Quick links */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        {quickLinks.map((link) => (
-          <Link key={link.href} href={link.href}>
-            <Card className="hover:bg-muted/40 transition-colors cursor-pointer">
-              <CardContent className="pt-4 pb-4 flex items-center gap-3">
-                <div className="w-9 h-9 rounded-md bg-primary/10 flex items-center justify-center">
-                  <link.icon className="h-4 w-4 text-primary" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium">{link.label}</p>
-                  <p className="text-xs text-muted-foreground">{link.description}</p>
-                </div>
-              </CardContent>
-            </Card>
-          </Link>
-        ))}
+      <div>
+        <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3">Quick Actions</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {quickLinks.map((link) => (
+            <Link key={link.href} href={link.href}>
+              <Card className="group hover:shadow-md hover:border-primary/15 hover:-translate-y-px transition-all duration-200 cursor-pointer">
+                <CardContent className="pt-5 pb-5 flex items-center gap-4">
+                  <div className={`w-10 h-10 rounded-xl ${link.color} flex items-center justify-center shrink-0`}>
+                    <link.icon className="h-5 w-5" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold group-hover:text-primary transition-colors">{link.label}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">{link.description}</p>
+                  </div>
+                  <ChevronRight className="h-4 w-4 text-muted-foreground/40 group-hover:text-primary/50 transition-colors shrink-0" />
+                </CardContent>
+              </Card>
+            </Link>
+          ))}
+        </div>
       </div>
     </div>
   )
