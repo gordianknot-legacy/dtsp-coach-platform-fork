@@ -67,7 +67,7 @@ export default async function CMHome() {
       </div>
 
       {/* KPIs */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      <div className="grid grid-cols-1 min-[400px]:grid-cols-2 sm:grid-cols-4 gap-3">
         <KPICard label="Coaches" value={coachList.length} />
         <KPICard label="Sessions done" value={completedCount} />
         <KPICard label="No-shows" value={noShowCount} />
@@ -89,9 +89,9 @@ export default async function CMHome() {
             {escalations.map((esc: any) => (
               <div key={esc.id} className="flex items-center justify-between gap-2">
                 <div className="text-sm text-red-900">
-                  <span className="font-medium">{esc.teacher?.name}</span>
+                  <span className="font-medium">{esc.teacher?.name ?? 'Unknown teacher'}</span>
                   <span className="text-red-600"> · {esc.trigger_type.replace(/_/g, ' ')}</span>
-                  <span className="text-red-500 text-xs"> · Coach: {esc.coach?.name}</span>
+                  <span className="text-red-500 text-xs"> · Coach: {esc.coach?.name ?? 'Unassigned'}</span>
                 </div>
                 <span className="text-xs text-red-500 shrink-0">{formatDate(esc.auto_created_at)}</span>
               </div>

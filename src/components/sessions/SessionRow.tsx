@@ -38,8 +38,8 @@ const CONFIRMATION_ICON: Record<ConfirmationStatus, React.ElementType> = {
 
 export function SessionRow({ session, showDate = false }: SessionRowProps) {
   const status = STATUS_CONFIG[session.status] ?? { label: session.status, className: 'bg-slate-100 text-slate-600 border-slate-200' }
-  const ChannelIcon = CHANNEL_ICON[session.channel]
-  const ConfIcon = CONFIRMATION_ICON[session.confirmation_status]
+  const ChannelIcon = CHANNEL_ICON[session.channel] ?? Phone
+  const ConfIcon = CONFIRMATION_ICON[session.confirmation_status] ?? AlertCircle
   const isCompleted = session.status === 'completed' || session.status === 'cancelled'
 
   return (

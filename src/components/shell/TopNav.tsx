@@ -70,6 +70,7 @@ export function TopNav({ role, userName, escalationCount = 0 }: TopNavProps) {
   const router = useRouter()
   const supabase = createClient()
   const [showRoleSwitcher, setShowRoleSwitcher] = useState(false)
+  const [switchingRole, setSwitchingRole] = useState<UserRole | null>(null)
 
   const navItems = NAV_ITEMS[role] ?? []
 
@@ -88,7 +89,7 @@ export function TopNav({ role, userName, escalationCount = 0 }: TopNavProps) {
       className="sticky top-0 z-40 w-full backdrop-blur-xl border-b"
       style={{
         background: 'linear-gradient(180deg, hsl(224 40% 10% / 0.97) 0%, hsl(224 40% 12% / 0.95) 100%)',
-        borderColor: 'hsl(224 28% 18%)',
+        borderColor: 'var(--color-border, hsl(224 28% 18%))',
       }}
     >
       <div className="flex h-[56px] items-center px-4 gap-3 max-w-screen-2xl mx-auto">
@@ -180,24 +181,34 @@ export function TopNav({ role, userName, escalationCount = 0 }: TopNavProps) {
                   {(['coach', 'cm', 'admin', 'observer'] as UserRole[]).map((r) => (
                     <button
                       key={r}
-                      onClick={() => {
-                        setShowRoleSwitcher(false)
-                        if (r === role) return
-                        fetch('/api/auth/switch-role', {
-                          method: 'POST',
-                          headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify({ role: r }),
-                        }).then((res) => {
+                      disabled={switchingRole !== null}
+                      onClick={async () => {
+                        if (r === role) {
+                          setShowRoleSwitcher(false)
+                          return
+                        }
+                        setSwitchingRole(r)
+                        try {
+                          const res = await fetch('/api/auth/switch-role', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ role: r }),
+                          })
                           if (res.ok) {
                             window.location.href = `/${r === 'coach' ? 'coach' : r}`
+                          } else {
+                            setSwitchingRole(null)
                           }
-                        })
+                        } catch {
+                          setSwitchingRole(null)
+                        }
                       }}
                       className={cn(
                         'w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-all text-left',
                         r === role
                           ? 'bg-white/[0.08] text-white'
-                          : 'text-white/60 hover:bg-white/[0.05] hover:text-white/90'
+                          : 'text-white/60 hover:bg-white/[0.05] hover:text-white/90',
+                        switchingRole !== null && switchingRole !== r && 'opacity-40 pointer-events-none'
                       )}
                     >
                       <div className={cn(
@@ -207,7 +218,10 @@ export function TopNav({ role, userName, escalationCount = 0 }: TopNavProps) {
                         {ROLE_LABEL[r][0]}
                       </div>
                       <span className="flex-1">{ROLE_LABEL[r]}</span>
-                      {r === role && (
+                      {switchingRole === r && (
+                        <span className="text-[10px] text-blue-300 animate-pulse">Switching...</span>
+                      )}
+                      {r === role && switchingRole !== r && (
                         <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-white/10 text-blue-300 font-medium">Active</span>
                       )}
                     </button>

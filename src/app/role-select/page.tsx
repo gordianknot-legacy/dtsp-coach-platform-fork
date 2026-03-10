@@ -74,7 +74,7 @@ export default function RoleSelectPage() {
           <h1 className="text-2xl font-bold text-white tracking-tight">
             {userName ? `Welcome, ${userName}` : 'Choose your role'}
           </h1>
-          <p className="text-blue-200/50 mt-2 text-[15px]">
+          <p className="text-blue-200/70 mt-2 text-[15px]">
             Select a role to get started. You can switch anytime.
           </p>
         </div>
@@ -101,7 +101,7 @@ export default function RoleSelectPage() {
                   <Icon className="h-5 w-5 text-white" />
                 </div>
                 <p className="text-[15px] font-semibold text-white">{label}</p>
-                <p className="text-xs text-blue-200/40 mt-1 leading-relaxed">{description}</p>
+                <p className="text-xs text-blue-200/70 mt-1 leading-relaxed">{description}</p>
 
                 {isActive && (
                   <div className="absolute top-4 right-4 px-2 py-0.5 rounded-full bg-white/15 text-[10px] font-semibold text-blue-200 uppercase tracking-wider">

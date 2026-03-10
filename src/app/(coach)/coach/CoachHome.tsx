@@ -46,31 +46,48 @@ export function CoachHome({ todaySessions, dueActions }: CoachHomeProps) {
   const tomorrow = format(addDays(new Date(), 1), 'yyyy-MM-dd')
 
   async function fetchWeekSessions() {
-    const weekStart = format(startOfWeek(new Date(), { weekStartsOn: 1 }), 'yyyy-MM-dd')
-    const res = await fetch(`/api/sessions?week=${weekStart}`)
-    const json = await res.json()
-    setWeekSessions(json.sessions ?? [])
+    try {
+      const weekStart = format(startOfWeek(new Date(), { weekStartsOn: 1 }), 'yyyy-MM-dd')
+      const res = await fetch(`/api/sessions?week=${weekStart}`)
+      if (!res.ok) return
+      const json = await res.json()
+      setWeekSessions(json.sessions ?? [])
+    } catch {
+      // Network error — leave empty state visible
+    }
   }
 
   async function fetchTomorrowSessions() {
-    const res = await fetch(`/api/sessions?date=${tomorrow}`)
-    const json = await res.json()
-    setTomorrowSessions(json.sessions ?? [])
+    try {
+      const res = await fetch(`/api/sessions?date=${tomorrow}`)
+      if (!res.ok) return
+      const json = await res.json()
+      setTomorrowSessions(json.sessions ?? [])
+    } catch {
+      // Network error — leave empty state visible
+    }
   }
 
   async function fetchCalendarCounts(month: string) {
     setLoading(true)
-    const res = await fetch(`/api/sessions/calendar?month=${month}`)
-    const json = await res.json()
-    setCalendarCounts(json.dayCounts ?? [])
-    setLoading(false)
+    try {
+      const res = await fetch(`/api/sessions/calendar?month=${month}`)
+      if (!res.ok) return
+      const json = await res.json()
+      setCalendarCounts(json.dayCounts ?? [])
+    } catch {
+      // Network error — leave calendar empty
+    } finally {
+      setLoading(false)
+    }
   }
 
   useEffect(() => {
     if (tab === 'tomorrow' && tomorrowSessions.length === 0) fetchTomorrowSessions()
     if (tab === 'week' && weekSessions.length === 0) fetchWeekSessions()
     if (tab === 'calendar') fetchCalendarCounts(calendarMonth)
-  }, [tab])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tab, calendarMonth])
 
   function handleCalendarDayClick(date: Date, hasSession: boolean) {
     const dateStr = format(date, 'yyyy-MM-dd')

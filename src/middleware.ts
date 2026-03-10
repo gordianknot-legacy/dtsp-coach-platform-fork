@@ -38,41 +38,32 @@ export async function middleware(request: NextRequest) {
 
   const { pathname } = request.nextUrl
 
-  // Allow public routes
-  if (PUBLIC_ROUTES.some((r) => pathname.startsWith(r))) {
-    // If logged in and hitting /login, redirect to their workspace
-    if (user && pathname.startsWith('/login')) {
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', user.id)
-        .single()
-
-      if (profile) {
-        const home = ROLE_HOME[profile.role as UserRole] ?? '/login'
-        return NextResponse.redirect(new URL(home, request.url))
-      }
-    }
-    return supabaseResponse
-  }
-
-  // Allow role-select page and switch-role API for authenticated users
-  if (pathname === '/role-select' || pathname === '/api/auth/switch-role') {
-    if (!user) {
-      return NextResponse.redirect(new URL('/login', request.url))
-    }
-    return supabaseResponse
-  }
-
-  // Unauthenticated — redirect to login
+  // Unauthenticated users
   if (!user) {
+    // Allow public routes
+    if (PUBLIC_ROUTES.some((r) => pathname.startsWith(r))) {
+      return supabaseResponse
+    }
+    // Redirect to login with return path
     const url = request.nextUrl.clone()
     url.pathname = '/login'
     url.searchParams.set('next', pathname)
     return NextResponse.redirect(url)
   }
 
-  // Fetch profile for role-based access control
+  // --- Authenticated from here ---
+
+  // Allow role-select page and switch-role API
+  if (pathname === '/role-select' || pathname === '/api/auth/switch-role') {
+    return supabaseResponse
+  }
+
+  // Allow auth callback
+  if (pathname.startsWith('/auth/callback')) {
+    return supabaseResponse
+  }
+
+  // Single profile fetch for all authenticated routes
   const { data: profile } = await supabase
     .from('profiles')
     .select('role')
@@ -80,23 +71,25 @@ export async function middleware(request: NextRequest) {
     .single()
 
   if (!profile) {
-    // Authenticated but no profile — send to login to re-authenticate
     return NextResponse.redirect(new URL('/login', request.url))
   }
 
   const role = profile.role as UserRole
 
-  // Enforce role-based route access
-  const rolePrefix = `/${role}`
+  // Logged-in user hitting /login — redirect to their workspace
+  if (pathname.startsWith('/login')) {
+    return NextResponse.redirect(new URL(ROLE_HOME[role] ?? '/login', request.url))
+  }
+
+  // Root path — redirect to role home
   if (pathname === '/') {
     return NextResponse.redirect(new URL(ROLE_HOME[role], request.url))
   }
 
-  // Block cross-role access (all 4 allowed users can switch roles, so we respect their current role)
+  // Block cross-role access (admin can access all)
   const protectedPrefixes = ['/coach', '/cm', '/admin', '/observer']
   const accessedPrefix = protectedPrefixes.find((p) => pathname.startsWith(p))
-  if (accessedPrefix && !pathname.startsWith(rolePrefix)) {
-    // Admin can access all routes
+  if (accessedPrefix && !pathname.startsWith(`/${role}`)) {
     if (role !== 'admin') {
       return NextResponse.redirect(new URL(ROLE_HOME[role], request.url))
     }

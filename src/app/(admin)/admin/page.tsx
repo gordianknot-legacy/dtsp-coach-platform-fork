@@ -59,7 +59,7 @@ export default async function AdminHome() {
       )}
 
       {/* Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      <div className="grid grid-cols-1 min-[400px]:grid-cols-2 sm:grid-cols-4 gap-3">
         {[
           { label: 'Coaches', value: coachCount.count ?? 0 },
           { label: 'Active Teachers', value: teacherCount.count ?? 0 },

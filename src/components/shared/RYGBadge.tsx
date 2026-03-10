@@ -15,6 +15,8 @@ const RYG_CONFIG: Record<RYGStatus, { label: string; className: string }> = {
 
 export function RYGBadge({ status, className, showLabel = true }: RYGBadgeProps) {
   const config = RYG_CONFIG[status]
+  if (!config) return null
+
   return (
     <span
       className={cn(

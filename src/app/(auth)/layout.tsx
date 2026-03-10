@@ -30,7 +30,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
           <h2 className="text-3xl font-bold text-white leading-tight tracking-tight">
             District Teacher<br />Support Programme
           </h2>
-          <p className="mt-4 text-[15px] leading-relaxed text-blue-100/60 max-w-[300px]">
+          <p className="mt-4 text-[15px] leading-relaxed text-blue-100/80 max-w-[300px]">
             Empowering field coordinators to support and uplift primary school teachers across Uttar Pradesh.
           </p>
 
@@ -45,7 +45,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
                 <div className="w-1.5 h-1.5 rounded-full bg-blue-300/50 mt-2 shrink-0" />
                 <div>
                   <p className="text-sm font-medium text-white/90">{f.label}</p>
-                  <p className="text-xs text-blue-200/50">{f.desc}</p>
+                  <p className="text-xs text-blue-200/70">{f.desc}</p>
                 </div>
               </div>
             ))}
@@ -58,7 +58,13 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
       </div>
 
       {/* Right login area */}
-      <div className="flex-1 flex items-center justify-center px-6 py-12 bg-gradient-to-br from-slate-50 to-blue-50/30">
+      <div className="flex-1 flex flex-col items-center justify-center px-6 py-12 bg-gradient-to-br from-slate-50 to-blue-50/30">
+        {/* Mobile-only top branding bar */}
+        <div className="lg:hidden w-full max-w-[380px] mb-8 pb-6 border-b border-border/40">
+          <p className="text-xs font-medium text-muted-foreground tracking-wide uppercase">
+            District Teacher Support Programme
+          </p>
+        </div>
         {children}
       </div>
     </div>

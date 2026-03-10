@@ -29,25 +29,27 @@ export default async function CoachesPage() {
 
   const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
 
-  const [sessions, escalations, assignments] = await Promise.all([
-    supabase
-      .from('sessions')
-      .select('status, coach_id, confirmation_status')
-      .in('coach_id', coachIds)
-      .gte('scheduled_at', thirtyDaysAgo),
+  const [sessions, escalations, assignments] = coachIds.length > 0
+    ? await Promise.all([
+        supabase
+          .from('sessions')
+          .select('status, coach_id, confirmation_status')
+          .in('coach_id', coachIds)
+          .gte('scheduled_at', thirtyDaysAgo),
 
-    supabase
-      .from('escalations')
-      .select('coach_id, status')
-      .in('coach_id', coachIds)
-      .eq('status', 'open'),
+        supabase
+          .from('escalations')
+          .select('coach_id, status')
+          .in('coach_id', coachIds)
+          .eq('status', 'open'),
 
-    supabase
-      .from('assignments')
-      .select('coach_id')
-      .in('coach_id', coachIds)
-      .eq('is_active', true),
-  ])
+        supabase
+          .from('assignments')
+          .select('coach_id')
+          .in('coach_id', coachIds)
+          .eq('is_active', true),
+      ])
+    : [{ data: [] }, { data: [] }, { data: [] }]
 
   const sessionData = sessions.data ?? []
   const escalationData = escalations.data ?? []
