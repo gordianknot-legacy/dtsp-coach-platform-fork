@@ -33,7 +33,8 @@ function LoginForm() {
   return (
     <>
       <div className="mb-8">
-        <h1 className="text-lg font-semibold">DTSP Coach Platform</h1>
+        <div className="w-10 h-1 rounded-full bg-primary mb-4" />
+        <h1 className="text-2xl font-bold">DTSP Coach Platform</h1>
         <p className="text-sm text-muted-foreground mt-1">
           District Teacher Support Programme
         </p>

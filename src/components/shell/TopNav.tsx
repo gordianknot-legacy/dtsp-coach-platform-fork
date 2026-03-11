@@ -70,7 +70,7 @@ export function TopNav({ role, userName, escalationCount = 0 }: TopNavProps) {
   }
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-border bg-background">
+    <header className="sticky top-0 z-40 w-full border-b border-border bg-background shadow-sm">
       <div className="flex h-12 items-center gap-6 px-4 sm:px-6 max-w-5xl mx-auto">
 
         {/* Brand + Role */}
@@ -87,7 +87,7 @@ export function TopNav({ role, userName, escalationCount = 0 }: TopNavProps) {
               className={cn(
                 'px-3 h-12 inline-flex items-center text-sm transition-colors border-b-2 whitespace-nowrap',
                 isActive(item)
-                  ? 'border-foreground text-foreground font-medium'
+                  ? 'border-primary text-foreground font-medium'
                   : 'border-transparent text-muted-foreground hover:text-foreground'
               )}
             >

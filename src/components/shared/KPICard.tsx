@@ -13,7 +13,7 @@ export function KPICard({ label, value, subtext, trend, className }: KPICardProp
   const TrendIcon = trend === 'up' ? TrendingUp : trend === 'down' ? TrendingDown : Minus
 
   return (
-    <div className={cn('rounded-lg border border-border bg-card p-4', className)}>
+    <div className={cn('rounded-lg border border-border bg-card p-4 shadow-sm hover:shadow-md transition-shadow', className)}>
       <p className="text-xs text-muted-foreground">{label}</p>
       <p className="text-2xl font-semibold mt-1 tabular-nums">{value}</p>
       {subtext && (
