@@ -103,11 +103,12 @@ export function SessionCalendar({ dayCounts, onDayClick, onEmptyDayClick }: Sess
         .rbc-day-medium .rbc-day-bg { background-color: #fef9c3 !important; }
         .rbc-day-high .rbc-day-bg { background-color: #fee2e2 !important; }
         .rbc-day-full .rbc-day-bg { background-color: #fca5a5 !important; }
-        .rbc-event { font-size: 11px; padding: 2px 4px; }
+        .rbc-event { font-size: 12px; padding: 2px 4px; }
+        @media (max-width: 640px) { .rbc-toolbar { flex-direction: column; gap: 8px; } }
         .rbc-month-view { border-radius: 8px; overflow: hidden; }
         .rbc-toolbar button { font-size: 13px; }
       `}</style>
-      <div className="h-[500px]">
+      <div className="h-[350px] sm:h-[450px] md:h-[550px]">
         <Calendar
           localizer={localizer}
           events={events}

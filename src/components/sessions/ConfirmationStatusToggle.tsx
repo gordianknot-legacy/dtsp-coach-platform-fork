@@ -47,7 +47,7 @@ export function ConfirmationStatusToggle({ sessionId, initial, onChange }: Confi
           onClick={() => handleChange(s.value)}
           disabled={saving}
           className={cn(
-            'px-2 py-0.5 rounded border text-xs font-medium transition-all',
+            'px-3 py-1.5 rounded border text-xs font-medium transition-all',
             status === s.value ? s.className : 'bg-background text-muted-foreground border-border hover:bg-muted'
           )}
         >

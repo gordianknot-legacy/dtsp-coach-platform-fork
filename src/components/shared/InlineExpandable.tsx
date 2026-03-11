@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { ChevronDown, ChevronRight } from 'lucide-react'
+import { ChevronRight } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 interface InlineExpandableProps {
@@ -29,16 +29,16 @@ export function InlineExpandable({
         onClick={() => setOpen(!open)}
       >
         <div className="flex items-center gap-2">
-          {open ? (
-            <ChevronDown className="h-4 w-4 text-muted-foreground" />
-          ) : (
-            <ChevronRight className="h-4 w-4 text-muted-foreground" />
-          )}
+          <ChevronRight className={cn('h-4 w-4 text-muted-foreground transition-transform duration-200', open && 'rotate-90')} />
           <span className="text-sm font-medium">{title}</span>
           {badge}
         </div>
       </button>
-      {open && <div className="px-3 py-3 border-t border-border">{children}</div>}
+      <div className={cn('grid transition-[grid-template-rows] duration-200', open ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]')}>
+        <div className="overflow-hidden">
+          <div className="px-3 py-3 border-t border-border">{children}</div>
+        </div>
+      </div>
     </div>
   )
 }

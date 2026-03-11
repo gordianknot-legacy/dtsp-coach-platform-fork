@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
-import { TopNav } from './TopNav'
+import { ShellClient } from './ShellClient'
 import type { UserRole } from '@/lib/supabase/types'
 
 interface WorkspaceShellProps {
@@ -35,11 +35,8 @@ export async function WorkspaceShell({ role, children }: WorkspaceShellProps) {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
-      <TopNav role={role} userName={userName} escalationCount={escalationCount} />
-      <main className="flex-1 mx-auto w-full px-4 sm:px-6 py-5 sm:py-8 max-w-4xl">
-        {children}
-      </main>
-    </div>
+    <ShellClient role={role} userName={userName} escalationCount={escalationCount}>
+      {children}
+    </ShellClient>
   )
 }

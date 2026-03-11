@@ -33,7 +33,9 @@ function LoginForm() {
   return (
     <>
       <div className="mb-8">
-        <div className="w-10 h-1 rounded-full bg-primary mb-4" />
+        <div className="w-12 h-12 rounded-xl bg-brand text-brand-foreground flex items-center justify-center text-lg font-bold mb-4">
+          DT
+        </div>
         <h1 className="text-2xl font-bold">DTSP Coach Platform</h1>
         <p className="text-sm text-muted-foreground mt-1">
           District Teacher Support Programme
@@ -57,7 +59,7 @@ function LoginForm() {
 
       <Button
         onClick={handleGoogleLogin}
-        className="w-full h-10 gap-2"
+        className="w-full h-11 gap-2"
         variant="outline"
       >
         <svg className="h-4 w-4" viewBox="0 0 24 24">

@@ -33,7 +33,7 @@ export function WhatsAppDraftBox({
       setCopied(true)
       if (timeoutRef.current) clearTimeout(timeoutRef.current)
       // Keep "Copied!" state visible for 5 seconds — UP field condition UX rule
-      timeoutRef.current = setTimeout(() => setCopied(false), 5000)
+      timeoutRef.current = setTimeout(() => setCopied(false), 3000)
     } catch {
       // Fallback for browsers that block clipboard
       const el = document.createElement('textarea')
@@ -43,7 +43,7 @@ export function WhatsAppDraftBox({
       document.execCommand('copy')
       document.body.removeChild(el)
       setCopied(true)
-      timeoutRef.current = setTimeout(() => setCopied(false), 5000)
+      timeoutRef.current = setTimeout(() => setCopied(false), 3000)
     }
   }
 
@@ -58,14 +58,14 @@ export function WhatsAppDraftBox({
         <div className="flex items-center gap-2">
           <span className="text-sm font-medium">WhatsApp summary</span>
           {isAIGenerated && (
-            <Badge variant="outline" className="text-[10px] gap-1 border-amber-300 text-amber-700 bg-amber-50">
+            <Badge variant="outline" className="text-xs gap-1 border-amber-300 text-amber-700 bg-amber-50">
               <AlertTriangle className="h-2.5 w-2.5" />
               AI draft — review carefully
             </Badge>
           )}
         </div>
         {sent && (
-          <Badge variant="outline" className="text-[10px] border-green-300 text-green-700 bg-green-50">
+          <Badge variant="outline" className="text-xs border-green-300 text-green-700 bg-green-50">
             Marked sent
           </Badge>
         )}

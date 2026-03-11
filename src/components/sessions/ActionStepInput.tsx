@@ -36,7 +36,7 @@ export function ActionStepInput({ value, onChange, maxSteps = 3 }: ActionStepInp
       <Label>Action steps (max {maxSteps})</Label>
 
       {value.map((step, index) => (
-        <div key={index} className="flex gap-2 items-start">
+        <div key={index} className="flex gap-2 sm:gap-3 items-start">
           <div className="flex-1 space-y-1">
             <Input
               placeholder={`Step ${index + 1}: What will the teacher do?`}
@@ -55,7 +55,7 @@ export function ActionStepInput({ value, onChange, maxSteps = 3 }: ActionStepInp
             variant="ghost"
             size="icon"
             onClick={() => removeStep(index)}
-            className="text-muted-foreground hover:text-destructive mt-0.5"
+            className="h-9 w-9 text-muted-foreground hover:text-destructive mt-0.5"
           >
             <Trash2 className="h-4 w-4" />
           </Button>

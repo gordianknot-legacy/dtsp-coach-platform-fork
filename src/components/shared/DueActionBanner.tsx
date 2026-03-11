@@ -25,10 +25,10 @@ export function DueActionBanner({ actions }: DueActionBannerProps) {
       <div className="mt-2 space-y-1.5">
         {actions.slice(0, 3).map((action) => (
           <div key={`${action.sessionId}-${action.type}`} className="flex items-center justify-between gap-2">
-            <span className="text-xs text-amber-800">
+            <span className="text-sm text-amber-800">
               {action.teacherName} — {action.label}
             </span>
-            <Button asChild variant="ghost" size="sm" className="h-6 text-xs px-2 text-amber-800 hover:text-amber-900 hover:bg-amber-100">
+            <Button asChild variant="ghost" size="sm" className="h-8 text-xs px-3 text-amber-800 hover:text-amber-900 hover:bg-amber-100">
               <Link href={`/coach/sessions/${action.sessionId}/after`}>
                 Complete
               </Link>
@@ -36,7 +36,9 @@ export function DueActionBanner({ actions }: DueActionBannerProps) {
           </div>
         ))}
         {actions.length > 3 && (
-          <p className="text-xs text-amber-700">+{actions.length - 3} more</p>
+          <Button asChild variant="ghost" size="sm" className="h-7 text-xs px-2 text-amber-700 hover:text-amber-900 hover:bg-amber-100 -ml-2">
+            <Link href="/coach">View all</Link>
+          </Button>
         )}
       </div>
     </div>

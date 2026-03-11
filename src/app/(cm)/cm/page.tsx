@@ -57,15 +57,15 @@ export default async function CMHome() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-lg font-semibold">Cluster Overview</h1>
+        <h1 className="text-xl font-semibold">Cluster Overview</h1>
         <p className="text-sm text-muted-foreground">Last 30 days</p>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <KPICard label="Coaches" value={coachList.length} />
-        <KPICard label="Sessions done" value={completedCount} />
-        <KPICard label="No-shows" value={noShowCount} />
-        <KPICard label="Escalations" value={escalations.length} />
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <KPICard label="Coaches" value={coachList.length} accent="blue" />
+        <KPICard label="Sessions done" value={completedCount} accent="green" />
+        <KPICard label="No-shows" value={noShowCount} accent="amber" />
+        <KPICard label="Escalations" value={escalations.length} accent="red" />
       </div>
 
       {escalations.length > 0 && (
@@ -81,7 +81,7 @@ export default async function CMHome() {
                   {' · '}{esc.trigger_type.replace(/_/g, ' ')}
                   {' · Coach: '}{esc.coach?.name ?? 'Unassigned'}
                 </p>
-                <span className="text-[11px] text-red-700 shrink-0 tabular-nums">{formatDate(esc.auto_created_at)}</span>
+                <span className="text-xs text-red-700 shrink-0 tabular-nums">{formatDate(esc.auto_created_at)}</span>
               </div>
             ))}
           </div>
@@ -106,8 +106,8 @@ export default async function CMHome() {
 
               return (
                 <Link key={coach.id} href={`/cm/coaches/${coach.id}`}>
-                  <div className="flex items-center justify-between px-3 py-2.5 hover:bg-muted/50 transition-colors">
-                    <span className="text-sm font-medium">{coach.name}</span>
+                  <div className="flex items-center justify-between px-3 py-2.5 hover:bg-muted/50 hover:-translate-y-px transition-all duration-150">
+                    <span className="text-sm font-semibold">{coach.name}</span>
                     <div className="flex items-center gap-3 text-xs text-muted-foreground">
                       <span className="tabular-nums">{coachCompleted} done</span>
                       {coachNoShows > 0 && <span className="text-red-600 font-medium tabular-nums">{coachNoShows} no-shows</span>}

@@ -20,7 +20,7 @@ const DEFAULT_COLOR = 'bg-muted text-muted-foreground border-border data-[active
 
 export function FocusTagSelector({ tags, value, onChange, disabled = false }: FocusTagSelectorProps) {
   return (
-    <div className="flex flex-wrap gap-2">
+    <div className="flex flex-wrap gap-2 max-w-full overflow-x-auto">
       {tags.map((tag) => (
         <button
           key={tag}

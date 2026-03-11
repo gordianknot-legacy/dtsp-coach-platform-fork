@@ -53,7 +53,7 @@ export function LeadershipSnapshot({
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-lg font-semibold">Leadership Snapshot</h1>
+          <h1 className="text-xl font-semibold">Leadership Snapshot</h1>
           <p className="text-sm text-muted-foreground">Last 30 days</p>
         </div>
         <Button variant="outline" size="sm" onClick={exportCSV} className="gap-2">
@@ -62,16 +62,16 @@ export function LeadershipSnapshot({
         </Button>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <KPICard label="Coaches active" value={coachCount} />
         <KPICard label="Sessions completed" value={completedSessions} />
         <KPICard label="No-shows" value={noShows} trend={noShows > 10 ? 'down' : 'neutral'} />
         <KPICard label="Open escalations" value={openEscalations} trend={openEscalations > 5 ? 'down' : 'neutral'} />
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {/* RYG distribution */}
-        <div className="rounded-lg border border-border p-4">
+        <div className="rounded-xl border border-border p-4">
           <p className="text-sm font-medium mb-3">Teacher RYG distribution</p>
           <div className="h-40">
             <ResponsiveContainer width="100%" height="100%">
@@ -90,7 +90,7 @@ export function LeadershipSnapshot({
         </div>
 
         {/* Focus distribution */}
-        <div className="rounded-lg border border-border p-4">
+        <div className="rounded-xl border border-border p-4">
           <p className="text-sm font-medium mb-3">Focus area distribution</p>
           {focusData.length === 0 ? (
             <p className="text-sm text-muted-foreground">No sessions with focus tags yet.</p>

@@ -113,12 +113,12 @@ export function CoachHome({ todaySessions, dueActions }: CoachHomeProps) {
   }
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       {dueActions.length > 0 && <DueActionBanner actions={dueActions} />}
 
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-lg font-semibold">My Sessions</h1>
+          <h1 className="text-xl font-semibold">My Sessions</h1>
           <p className="text-sm text-muted-foreground">{format(new Date(), 'EEEE, d MMMM yyyy')}</p>
         </div>
         <Button onClick={() => { setScheduleDate(''); setScheduleOpen(true) }} size="sm" className="gap-2">
@@ -142,7 +142,7 @@ export function CoachHome({ todaySessions, dueActions }: CoachHomeProps) {
         <TabsContent value="today" className="space-y-2 mt-3">
           {todaySessions.length === 0 ? (
             <EmptyState
-              title="No sessions today"
+              title="You're all caught up today!"
               description="Your scheduled sessions will appear here."
               action={
                 <Button variant="outline" size="sm" onClick={() => { setScheduleDate(''); setScheduleOpen(true) }}>
@@ -260,7 +260,7 @@ function ScheduleSessionDialog({ open, onClose, defaultDate, onSuccess }: Schedu
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-md sm:max-w-lg">
         <DialogHeader><DialogTitle>Schedule session</DialogTitle></DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">

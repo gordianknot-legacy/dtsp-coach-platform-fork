@@ -38,16 +38,16 @@ export function SessionRow({ session, showDate = false }: SessionRowProps) {
     <Link
       href={isCompleted ? `/coach/sessions/${session.id}/after` : `/coach/sessions/${session.id}`}
       className={cn(
-        'flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors',
-        'hover:bg-muted/50',
-        isCompleted && 'opacity-60'
+        'flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-150',
+        'hover:bg-muted/50 hover:-translate-y-px',
+        isCompleted && 'opacity-75'
       )}
     >
       {/* Time */}
       <div className="w-12 shrink-0 text-right">
         <p className="text-sm font-medium tabular-nums">{formatTime(session.scheduled_at)}</p>
         {showDate && (
-          <p className="text-[11px] text-muted-foreground">
+          <p className="text-xs text-muted-foreground">
             {new Date(session.scheduled_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}
           </p>
         )}
@@ -68,7 +68,7 @@ export function SessionRow({ session, showDate = false }: SessionRowProps) {
       {/* Right indicators */}
       <div className="flex items-center gap-2 shrink-0">
         <ChannelIcon className="h-3.5 w-3.5 text-muted-foreground/50" />
-        <span className={cn('text-[11px] px-2 py-0.5 rounded-md font-medium', status.className)}>
+        <span className={cn('text-xs px-2.5 py-1 rounded-md font-medium', status.className)}>
           {status.label}
         </span>
       </div>

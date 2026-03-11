@@ -23,24 +23,24 @@ export default async function AdminHome() {
   if ((standardsExist.count ?? 0) === 0) warnings.push('No rubrics — configure in Standards')
 
   const stats = [
-    { label: 'Coaches', value: coachCount.count ?? 0 },
-    { label: 'Teachers', value: teacherCount.count ?? 0 },
-    { label: 'Org Units', value: orgCount.count ?? 0 },
-    { label: 'Rubrics', value: standardsExist.count ?? 0 },
+    { label: 'Coaches', value: coachCount.count ?? 0, accent: 'bg-blue-500' },
+    { label: 'Teachers', value: teacherCount.count ?? 0, accent: 'bg-emerald-500' },
+    { label: 'Org Units', value: orgCount.count ?? 0, accent: 'bg-purple-500' },
+    { label: 'Rubrics', value: standardsExist.count ?? 0, accent: 'bg-amber-500' },
   ]
 
   const quickLinks = [
-    { href: '/admin/org', icon: Settings, label: 'Org Setup', description: 'Hierarchy and cohorts' },
-    { href: '/admin/users', icon: UserCog, label: 'Users', description: 'Coach and CM accounts' },
-    { href: '/admin/rosters', icon: Upload, label: 'Rosters', description: 'Teacher CSV import' },
-    { href: '/admin/assignments', icon: Users, label: 'Assignments', description: 'Teacher-coach mapping' },
-    { href: '/admin/standards', icon: GraduationCap, label: 'Standards', description: 'Rubrics and templates' },
+    { href: '/admin/org', icon: Settings, label: 'Org Setup', description: 'Hierarchy and cohorts', iconBg: 'bg-blue-100', iconColor: 'text-blue-600' },
+    { href: '/admin/users', icon: UserCog, label: 'Users', description: 'Coach and CM accounts', iconBg: 'bg-purple-100', iconColor: 'text-purple-600' },
+    { href: '/admin/rosters', icon: Upload, label: 'Rosters', description: 'Teacher CSV import', iconBg: 'bg-green-100', iconColor: 'text-green-600' },
+    { href: '/admin/assignments', icon: Users, label: 'Assignments', description: 'Teacher-coach mapping', iconBg: 'bg-amber-100', iconColor: 'text-amber-600' },
+    { href: '/admin/standards', icon: GraduationCap, label: 'Standards', description: 'Rubrics and templates', iconBg: 'bg-rose-100', iconColor: 'text-rose-600' },
   ]
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-lg font-semibold">Admin</h1>
+        <h1 className="text-xl font-semibold">Admin</h1>
         <p className="text-sm text-muted-foreground">Platform configuration</p>
       </div>
 
@@ -53,11 +53,12 @@ export default async function AdminHome() {
         </div>
       )}
 
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         {stats.map((stat) => (
-          <div key={stat.label} className="rounded-lg border border-border bg-card p-3 shadow-md">
-            <p className="text-xs text-muted-foreground">{stat.label}</p>
-            <p className="text-xl font-semibold mt-0.5 tabular-nums">{stat.value}</p>
+          <div key={stat.label} className="rounded-xl border border-border bg-card p-4 shadow-md overflow-hidden relative">
+            <div className={`absolute top-0 left-0 right-0 h-1 ${stat.accent}`} />
+            <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{stat.label}</p>
+            <p className="text-2xl font-bold tracking-tight mt-0.5 tabular-nums">{stat.value}</p>
           </div>
         ))}
       </div>
@@ -65,9 +66,9 @@ export default async function AdminHome() {
       <div className="rounded-lg border border-border bg-card shadow-md divide-y divide-border">
         {quickLinks.map((link) => (
           <Link key={link.href} href={link.href}>
-            <div className="flex items-center gap-3 p-3 hover:bg-muted/50 transition-colors group">
-              <div className="w-8 h-8 rounded-md bg-muted flex items-center justify-center shrink-0">
-                <link.icon className="h-4 w-4 text-muted-foreground" />
+            <div className="flex items-center gap-3 p-3 hover:bg-muted/50 hover:-translate-y-px transition-all duration-200 group">
+              <div className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ${link.iconBg}`}>
+                <link.icon className={`h-5 w-5 ${link.iconColor}`} />
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium">{link.label}</p>
