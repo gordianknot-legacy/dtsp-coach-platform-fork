@@ -3,7 +3,6 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
@@ -113,7 +112,7 @@ export function CallWorkspace({ session, lastSession, currentRYG, focusCategorie
   const noShowMinutes = noShowCountdown !== null ? Math.ceil(noShowCountdown / 60) : null
 
   return (
-    <div className="space-y-4 max-w-3xl">
+    <div className="space-y-5 max-w-3xl">
       {/* Back nav */}
       <Button variant="ghost" size="sm" asChild className="gap-2 -ml-2">
         <Link href="/coach"><ArrowLeft className="h-4 w-4" /> Back to Home</Link>
@@ -123,7 +122,7 @@ export function CallWorkspace({ session, lastSession, currentRYG, focusCategorie
       <div className="flex items-start justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 flex-wrap">
-            <h1 className="text-xl font-bold">{session.teacher.name}</h1>
+            <h1 className="text-lg font-semibold">{session.teacher.name}</h1>
             {currentRYG && <RYGBadge status={currentRYG} />}
             {hasReschedules && (
               <Badge variant="outline" className="text-orange-700 border-orange-300 bg-orange-50 text-xs">
@@ -216,25 +215,20 @@ export function CallWorkspace({ session, lastSession, currentRYG, focusCategorie
       </InlineExpandable>
 
       {/* Focus tag */}
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-sm">Focus for this session</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <FocusTagSelector
-            tags={focusCategories}
-            value={focusTag}
-            onChange={handleFocusChange}
-            disabled={isCompleted}
-          />
-          {savingFocus && <p className="text-xs text-muted-foreground mt-2">Saving…</p>}
-        </CardContent>
-      </Card>
+      <div className="rounded-lg border border-border p-4">
+        <p className="text-sm font-medium mb-3">Focus for this session</p>
+        <FocusTagSelector
+          tags={focusCategories}
+          value={focusTag}
+          onChange={handleFocusChange}
+          disabled={isCompleted}
+        />
+        {savingFocus && <p className="text-xs text-muted-foreground mt-2">Saving…</p>}
+      </div>
 
       {/* Call controls */}
       {!isCompleted && (
-        <Card>
-          <CardContent className="pt-4 pb-4 space-y-3">
+        <div className="rounded-lg border border-border p-4 space-y-3">
             {/* Start call */}
             {!callInProgress ? (
               <div className="flex gap-2 flex-wrap">
@@ -298,8 +292,7 @@ export function CallWorkspace({ session, lastSession, currentRYG, focusCategorie
             >
               Reschedule this session
             </Button>
-          </CardContent>
-        </Card>
+        </div>
       )}
 
       {/* Duration note for completed sessions */}

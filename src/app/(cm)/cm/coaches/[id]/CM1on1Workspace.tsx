@@ -88,10 +88,9 @@ export function CM1on1Workspace({
   }
 
   return (
-    <div className="space-y-4">
-      {/* Header */}
+    <div className="space-y-5">
       <div>
-        <h1 className="text-xl font-bold">{coach.name}</h1>
+        <h1 className="text-lg font-semibold">{coach.name}</h1>
         <p className="text-sm text-muted-foreground">1:1 Workspace — Last 30 days</p>
       </div>
 
@@ -220,33 +219,29 @@ export function CM1on1Workspace({
       </InlineExpandable>
 
       {/* Commitments */}
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm">1:1 commitments & notes</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3 pb-4">
-          <Textarea
-            placeholder="One commitment per line. E.g.&#10;• Will complete notes for 3 missing sessions by Friday&#10;• Focus literacy theme next 2 weeks for Block A teachers"
-            value={commitmentText}
-            onChange={(e) => setCommitmentText(e.target.value)}
-            rows={4}
-          />
+      <div className="rounded-lg border border-border p-4 space-y-3">
+        <p className="text-sm font-medium">1:1 commitments & notes</p>
+        <Textarea
+          placeholder="One commitment per line. E.g.&#10;• Will complete notes for 3 missing sessions by Friday&#10;• Focus literacy theme next 2 weeks for Block A teachers"
+          value={commitmentText}
+          onChange={(e) => setCommitmentText(e.target.value)}
+          rows={4}
+        />
 
-          {recentCommitments.length > 0 && (
-            <div className="text-xs text-muted-foreground space-y-1">
-              <p className="font-medium">Previous commitments:</p>
-              {recentCommitments[0].commitments?.slice(0, 3).map((c: any, i: number) => (
-                <p key={i}>• {c.text}</p>
-              ))}
-            </div>
-          )}
+        {recentCommitments.length > 0 && (
+          <div className="text-xs text-muted-foreground space-y-1">
+            <p className="font-medium">Previous commitments:</p>
+            {recentCommitments[0].commitments?.slice(0, 3).map((c: any, i: number) => (
+              <p key={i}>• {c.text}</p>
+            ))}
+          </div>
+        )}
 
-          <Button onClick={saveCommitments} disabled={!commitmentText.trim() || savingCommitments} className="gap-2">
-            <Save className="h-4 w-4" />
-            {savingCommitments ? 'Saving…' : 'Save 1:1 & mark done'}
-          </Button>
-        </CardContent>
-      </Card>
+        <Button onClick={saveCommitments} disabled={!commitmentText.trim() || savingCommitments} className="gap-2">
+          <Save className="h-4 w-4" />
+          {savingCommitments ? 'Saving…' : 'Save 1:1 & mark done'}
+        </Button>
+      </div>
     </div>
   )
 }

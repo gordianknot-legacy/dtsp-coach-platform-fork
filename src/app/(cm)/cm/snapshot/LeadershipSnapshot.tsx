@@ -1,6 +1,5 @@
 'use client'
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { KPICard } from '@/components/shared/KPICard'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts'
@@ -54,8 +53,8 @@ export function LeadershipSnapshot({
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold">Leadership Snapshot</h1>
-          <p className="text-sm text-muted-foreground">Last 30 days · All coaches</p>
+          <h1 className="text-lg font-semibold">Leadership Snapshot</h1>
+          <p className="text-sm text-muted-foreground">Last 30 days</p>
         </div>
         <Button variant="outline" size="sm" onClick={exportCSV} className="gap-2">
           <Download className="h-4 w-4" />
@@ -63,7 +62,6 @@ export function LeadershipSnapshot({
         </Button>
       </div>
 
-      {/* KPIs */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <KPICard label="Coaches active" value={coachCount} />
         <KPICard label="Sessions completed" value={completedSessions} />
@@ -71,88 +69,78 @@ export function LeadershipSnapshot({
         <KPICard label="Open escalations" value={openEscalations} trend={openEscalations > 5 ? 'down' : 'neutral'} />
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {/* RYG distribution */}
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm">Teacher RYG distribution</CardTitle>
-          </CardHeader>
-          <CardContent className="pb-4">
+        <div className="rounded-lg border border-border p-4">
+          <p className="text-sm font-medium mb-3">Teacher RYG distribution</p>
+          <div className="h-40">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={rygChartData}>
+                <XAxis dataKey="name" tick={{ fontSize: 12 }} />
+                <YAxis tick={{ fontSize: 12 }} />
+                <Tooltip />
+                <Bar dataKey="value" radius={[4, 4, 0, 0]}>
+                  {rygChartData.map((entry, i) => (
+                    <Cell key={i} fill={entry.color} />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Focus distribution */}
+        <div className="rounded-lg border border-border p-4">
+          <p className="text-sm font-medium mb-3">Focus area distribution</p>
+          {focusData.length === 0 ? (
+            <p className="text-sm text-muted-foreground">No sessions with focus tags yet.</p>
+          ) : (
             <div className="h-40">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={rygChartData}>
-                  <XAxis dataKey="name" tick={{ fontSize: 12 }} />
-                  <YAxis tick={{ fontSize: 12 }} />
+                <BarChart data={focusData} layout="vertical">
+                  <XAxis type="number" tick={{ fontSize: 12 }} />
+                  <YAxis type="category" dataKey="name" width={80} tick={{ fontSize: 11 }} />
                   <Tooltip />
-                  <Bar dataKey="value" radius={[4, 4, 0, 0]}>
-                    {rygChartData.map((entry, i) => (
-                      <Cell key={i} fill={entry.color} />
-                    ))}
-                  </Bar>
+                  <Bar dataKey="value" fill="hsl(240 5.9% 10%)" radius={[0, 4, 4, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
-          </CardContent>
-        </Card>
-
-        {/* Focus distribution */}
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm">Focus area distribution</CardTitle>
-          </CardHeader>
-          <CardContent className="pb-4">
-            {focusData.length === 0 ? (
-              <p className="text-sm text-muted-foreground">No sessions with focus tags yet.</p>
-            ) : (
-              <div className="h-40">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={focusData} layout="vertical">
-                    <XAxis type="number" tick={{ fontSize: 12 }} />
-                    <YAxis type="category" dataKey="name" width={80} tick={{ fontSize: 11 }} />
-                    <Tooltip />
-                    <Bar dataKey="value" fill="hsl(240 5.9% 10%)" radius={[0, 4, 4, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+          )}
+        </div>
       </div>
 
       {/* Coach breakdown */}
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm">Coach breakdown</CardTitle>
-        </CardHeader>
-        <CardContent className="pb-4">
+      <div>
+        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">Coach breakdown</p>
+        <div className="rounded-lg border border-border overflow-hidden">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b">
-                <th className="text-left py-2 font-medium text-muted-foreground">Coach</th>
-                <th className="text-right py-2 font-medium text-muted-foreground">Completed</th>
-                <th className="text-right py-2 font-medium text-muted-foreground">No-shows</th>
-                <th className="text-right py-2 font-medium text-muted-foreground">Escalations</th>
+              <tr className="border-b border-border bg-muted/30">
+                <th className="text-left px-3 py-2 font-medium text-muted-foreground">Coach</th>
+                <th className="text-right px-3 py-2 font-medium text-muted-foreground">Completed</th>
+                <th className="text-right px-3 py-2 font-medium text-muted-foreground">No-shows</th>
+                <th className="text-right px-3 py-2 font-medium text-muted-foreground">Escalations</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y divide-border">
               {coaches.sort((a, b) => b.openEsc - a.openEsc).map((coach) => (
-                <tr key={coach.id} className="border-b border-muted">
-                  <td className="py-2">{coach.name}</td>
-                  <td className="py-2 text-right text-green-700">{coach.completed}</td>
-                  <td className="py-2 text-right text-red-700">{coach.noShows}</td>
-                  <td className="py-2 text-right">
+                <tr key={coach.id}>
+                  <td className="px-3 py-2">{coach.name}</td>
+                  <td className="px-3 py-2 text-right tabular-nums text-green-700">{coach.completed}</td>
+                  <td className="px-3 py-2 text-right tabular-nums text-red-700">{coach.noShows}</td>
+                  <td className="px-3 py-2 text-right tabular-nums">
                     {coach.openEsc > 0 ? (
                       <span className="text-red-700 font-medium">{coach.openEsc}</span>
                     ) : (
-                      <span className="text-muted-foreground">—</span>
+                      <span className="text-muted-foreground">&mdash;</span>
                     )}
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   )
 }

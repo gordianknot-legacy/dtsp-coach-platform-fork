@@ -4,13 +4,14 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import type { UserRole } from '@/lib/supabase/types'
-import { Users, BarChart2, Settings, Eye } from 'lucide-react'
+import { Check } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
-const ROLES: { role: UserRole; label: string; description: string; accent: string; icon: React.ElementType }[] = [
-  { role: 'coach', label: 'Coach', description: 'Manage sessions, track teachers, and build coaching relationships', accent: 'text-blue-700 bg-blue-50 border-blue-200', icon: Users },
-  { role: 'cm', label: 'Cluster Manager', description: 'Oversee coaches, review escalations, and monitor cluster health', accent: 'text-emerald-700 bg-emerald-50 border-emerald-200', icon: BarChart2 },
-  { role: 'admin', label: 'Administrator', description: 'Set up org hierarchy, manage users, import rosters, and configure standards', accent: 'text-violet-700 bg-violet-50 border-violet-200', icon: Settings },
-  { role: 'observer', label: 'Observer', description: 'View-only access to state-level snapshots and program metrics', accent: 'text-amber-700 bg-amber-50 border-amber-200', icon: Eye },
+const ROLES: { role: UserRole; label: string; description: string }[] = [
+  { role: 'coach', label: 'Coach', description: 'Manage sessions and track teacher progress' },
+  { role: 'cm', label: 'Cluster Manager', description: 'Oversee coaches and handle escalations' },
+  { role: 'admin', label: 'Administrator', description: 'Configure org, users, rosters, and standards' },
+  { role: 'observer', label: 'Observer', description: 'View program metrics and snapshots' },
 ]
 
 const ROLE_HOME: Record<UserRole, string> = {
@@ -67,23 +68,18 @@ export default function RoleSelectPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4 py-12 bg-background">
-      <div className="w-full max-w-lg">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center text-white font-bold text-sm mx-auto mb-4">
-            D
-          </div>
-          <h1 className="text-xl font-bold tracking-tight">
-            {userName ? `Welcome, ${userName}` : 'Choose your role'}
+      <div className="w-full max-w-md">
+        <div className="mb-6">
+          <h1 className="text-lg font-semibold">
+            {userName ? `Welcome, ${userName}` : 'Select role'}
           </h1>
-          <p className="text-sm text-muted-foreground mt-1.5">
-            Select a role to get started. You can switch anytime.
+          <p className="text-sm text-muted-foreground mt-1">
+            Choose how you want to use the platform.
           </p>
         </div>
 
-        {/* Role cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {ROLES.map(({ role, label, description, accent, icon: Icon }) => {
+        <div className="space-y-2">
+          {ROLES.map(({ role, label, description }) => {
             const isActive = currentRole === role
             const isLoading = switching === role
             const isDisabled = switching !== null && switching !== role
@@ -93,27 +89,23 @@ export default function RoleSelectPage() {
                 key={role}
                 onClick={() => selectRole(role)}
                 disabled={switching !== null}
-                className={`group relative text-left p-4 rounded-lg border transition-all duration-150 ${
+                className={cn(
+                  'w-full flex items-center gap-3 p-3 rounded-lg border text-left transition-colors',
                   isActive
-                    ? 'bg-muted border-border shadow-sm'
-                    : 'bg-card border-border hover:shadow-md hover:border-primary/20'
-                } ${isDisabled ? 'opacity-40 pointer-events-none' : ''}`}
-              >
-                <div className={`w-9 h-9 rounded-lg flex items-center justify-center mb-3 ${accent.split(' ').slice(0, 2).join(' ')}`}>
-                  <Icon className="h-4 w-4" />
-                </div>
-                <p className="text-sm font-semibold text-foreground">{label}</p>
-                <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{description}</p>
-
-                {isActive && (
-                  <div className="absolute top-3 right-3 px-1.5 py-0.5 rounded-md bg-primary/10 text-[10px] font-medium text-primary uppercase tracking-wider">
-                    Current
-                  </div>
+                    ? 'border-foreground bg-foreground/[0.03]'
+                    : 'border-border hover:border-foreground/20 hover:bg-muted/50',
+                  isDisabled && 'opacity-40 pointer-events-none'
                 )}
+              >
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium">{label}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">{description}</p>
+                </div>
                 {isLoading && (
-                  <div className="absolute top-3 right-3 text-xs text-primary animate-pulse">
-                    Loading...
-                  </div>
+                  <span className="text-xs text-muted-foreground animate-pulse shrink-0">...</span>
+                )}
+                {isActive && !isLoading && (
+                  <Check className="h-4 w-4 text-foreground shrink-0" />
                 )}
               </button>
             )

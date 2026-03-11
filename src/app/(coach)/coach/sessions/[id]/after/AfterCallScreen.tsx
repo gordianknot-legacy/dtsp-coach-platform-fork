@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
@@ -32,7 +31,6 @@ export function AfterCallScreen({ session, focusCategories, coachId }: AfterCall
   const router = useRouter()
   const { toast } = useToast()
 
-  // Initialize from existing notes or localStorage draft
   const savedDraft = typeof window !== 'undefined'
     ? JSON.parse(localStorage.getItem(DRAFT_KEY(session.id)) ?? 'null')
     : null
@@ -59,7 +57,6 @@ export function AfterCallScreen({ session, focusCategories, coachId }: AfterCall
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
 
-  // Persist draft to localStorage on every change — survives network interruption
   useEffect(() => {
     const draft = { focusTag, whatDiscussed, whatDecided, qualitative, actionSteps, whatsappDraft }
     localStorage.setItem(DRAFT_KEY(session.id), JSON.stringify(draft))
@@ -99,7 +96,6 @@ export function AfterCallScreen({ session, focusCategories, coachId }: AfterCall
   async function handleSave(closeSession = false) {
     setSaving(true)
     try {
-      // Save notes
       await fetch(`/api/sessions/${session.id}/notes`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -113,7 +109,6 @@ export function AfterCallScreen({ session, focusCategories, coachId }: AfterCall
         }),
       })
 
-      // Update focus tag + duration
       await fetch(`/api/sessions/${session.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
@@ -124,7 +119,6 @@ export function AfterCallScreen({ session, focusCategories, coachId }: AfterCall
         }),
       })
 
-      // Clear localStorage draft
       localStorage.removeItem(DRAFT_KEY(session.id))
       setSaved(true)
 
@@ -141,128 +135,110 @@ export function AfterCallScreen({ session, focusCategories, coachId }: AfterCall
   }
 
   return (
-    <div className="space-y-4 max-w-3xl">
-      {/* Back */}
+    <div className="space-y-5 max-w-3xl">
       <Button variant="ghost" size="sm" asChild className="gap-2 -ml-2">
         <Link href={`/coach/sessions/${session.id}`}>
           <ArrowLeft className="h-4 w-4" /> Back to session
         </Link>
       </Button>
 
-      {/* Header */}
       <div>
-        <h1 className="text-xl font-bold">After-call notes</h1>
+        <h1 className="text-lg font-semibold">After-call notes</h1>
         <p className="text-sm text-muted-foreground">
           {session.teacher.name} · {formatDateTime(session.scheduled_at)}
         </p>
       </div>
 
       {/* Focus tag */}
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm">Session focus *</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <FocusTagSelector tags={focusCategories} value={focusTag} onChange={setFocusTag} />
-        </CardContent>
-      </Card>
+      <div className="rounded-lg border border-border p-4">
+        <p className="text-sm font-medium mb-3">Session focus *</p>
+        <FocusTagSelector tags={focusCategories} value={focusTag} onChange={setFocusTag} />
+      </div>
 
       {/* Duration */}
-      <Card>
-        <CardContent className="pt-4 pb-4">
-          <div className="flex items-center gap-3">
-            <div className="space-y-1 flex-1">
-              <Label htmlFor="duration">Call duration (minutes)</Label>
-              <Input
-                id="duration"
-                type="number"
-                min="1"
-                max="180"
-                placeholder="e.g. 45"
-                value={durationMins}
-                onChange={(e) => setDurationMins(e.target.value)}
-                className="w-32"
-              />
-            </div>
-            <p className="text-xs text-muted-foreground mt-5">
-              Duration auto-updated when Google Meet data is available
-            </p>
+      <div className="rounded-lg border border-border p-4">
+        <div className="flex items-center gap-3">
+          <div className="space-y-1 flex-1">
+            <Label htmlFor="duration">Call duration (minutes)</Label>
+            <Input
+              id="duration"
+              type="number"
+              min="1"
+              max="180"
+              placeholder="e.g. 45"
+              value={durationMins}
+              onChange={(e) => setDurationMins(e.target.value)}
+              className="w-32"
+            />
           </div>
-        </CardContent>
-      </Card>
+          <p className="text-xs text-muted-foreground mt-5">
+            Duration auto-updated when Google Meet data is available
+          </p>
+        </div>
+      </div>
 
       {/* Notes */}
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm">Session notes *</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="discussed">What was discussed</Label>
-            <Textarea
-              id="discussed"
-              placeholder="Key topics covered in this session…"
-              value={whatDiscussed}
-              onChange={(e) => setWhatDiscussed(e.target.value)}
-              rows={4}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="decided">What was decided</Label>
-            <Textarea
-              id="decided"
-              placeholder="Decisions made, teaching practice to try…"
-              value={whatDecided}
-              onChange={(e) => setWhatDecided(e.target.value)}
-              rows={3}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="qualitative">Qualitative observations (optional)</Label>
-            <Textarea
-              id="qualitative"
-              placeholder="Tone, engagement, confidence level…"
-              value={qualitative}
-              onChange={(e) => setQualitative(e.target.value)}
-              rows={2}
-            />
-          </div>
-        </CardContent>
-      </Card>
+      <div className="rounded-lg border border-border p-4 space-y-4">
+        <p className="text-sm font-medium">Session notes *</p>
+        <div className="space-y-2">
+          <Label htmlFor="discussed">What was discussed</Label>
+          <Textarea
+            id="discussed"
+            placeholder="Key topics covered in this session…"
+            value={whatDiscussed}
+            onChange={(e) => setWhatDiscussed(e.target.value)}
+            rows={4}
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="decided">What was decided</Label>
+          <Textarea
+            id="decided"
+            placeholder="Decisions made, teaching practice to try…"
+            value={whatDecided}
+            onChange={(e) => setWhatDecided(e.target.value)}
+            rows={3}
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="qualitative">Qualitative observations (optional)</Label>
+          <Textarea
+            id="qualitative"
+            placeholder="Tone, engagement, confidence level…"
+            value={qualitative}
+            onChange={(e) => setQualitative(e.target.value)}
+            rows={2}
+          />
+        </div>
+      </div>
 
       {/* Action steps */}
-      <Card>
-        <CardContent className="pt-4 pb-4">
-          <ActionStepInput value={actionSteps} onChange={setActionSteps} />
-        </CardContent>
-      </Card>
+      <div className="rounded-lg border border-border p-4">
+        <ActionStepInput value={actionSteps} onChange={setActionSteps} />
+      </div>
 
       {/* WhatsApp summary */}
-      <Card>
-        <CardHeader className="pb-2">
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-sm">WhatsApp summary (Hindi)</CardTitle>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={generateAIDraft}
-              disabled={aiLoading}
-              className="gap-2"
-            >
-              {aiLoading && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-              {aiLoading ? 'Generating…' : 'Generate AI draft'}
-            </Button>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <WhatsAppDraftBox
-            draft={whatsappDraft}
-            onDraftChange={setWhatsappDraft}
-            isAIGenerated={aiUsed}
-            teacherPhone={session.teacher.phone}
-          />
-        </CardContent>
-      </Card>
+      <div className="rounded-lg border border-border p-4">
+        <div className="flex items-center justify-between mb-3">
+          <p className="text-sm font-medium">WhatsApp summary (Hindi)</p>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={generateAIDraft}
+            disabled={aiLoading}
+            className="gap-2"
+          >
+            {aiLoading && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+            {aiLoading ? 'Generating…' : 'Generate AI draft'}
+          </Button>
+        </div>
+        <WhatsAppDraftBox
+          draft={whatsappDraft}
+          onDraftChange={setWhatsappDraft}
+          isAIGenerated={aiUsed}
+          teacherPhone={session.teacher.phone}
+        />
+      </div>
 
       {/* Save buttons */}
       <div className="flex gap-3 pb-8">

@@ -1,8 +1,7 @@
 import Link from 'next/link'
-import { Badge } from '@/components/ui/badge'
 import { RYGBadge } from '@/components/shared/RYGBadge'
 import { formatTime } from '@/lib/utils'
-import { Phone, Video, Users, CheckCircle2, XCircle, AlertCircle } from 'lucide-react'
+import { Phone, Video, Users } from 'lucide-react'
 import type { Session, Teacher, RYGStatus, ConfirmationStatus } from '@/lib/supabase/types'
 import { cn } from '@/lib/utils'
 
@@ -14,90 +13,62 @@ interface SessionRowProps {
   showDate?: boolean
 }
 
-const STATUS_CONFIG = {
-  scheduled:   { label: 'Scheduled',   className: 'bg-blue-50 text-blue-700 border-blue-200' },
-  confirmed:   { label: 'Confirmed',   className: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
-  in_progress: { label: 'In Progress', className: 'bg-amber-50 text-amber-700 border-amber-200' },
-  completed:   { label: 'Done',        className: 'bg-slate-100 text-slate-500 border-slate-200' },
-  no_show:     { label: 'No-show',     className: 'bg-red-50 text-red-600 border-red-200' },
-  cancelled:   { label: 'Cancelled',   className: 'bg-slate-100 text-slate-400 border-slate-200' },
-  rescheduled: { label: 'Rescheduled', className: 'bg-purple-50 text-purple-700 border-purple-200' },
+const STATUS_LABEL: Record<string, { label: string; className: string }> = {
+  scheduled:   { label: 'Scheduled',   className: 'text-blue-700 bg-blue-50' },
+  confirmed:   { label: 'Confirmed',   className: 'text-emerald-700 bg-emerald-50' },
+  in_progress: { label: 'In Progress', className: 'text-amber-700 bg-amber-50' },
+  completed:   { label: 'Done',        className: 'text-muted-foreground bg-muted' },
+  no_show:     { label: 'No-show',     className: 'text-red-700 bg-red-50' },
+  cancelled:   { label: 'Cancelled',   className: 'text-muted-foreground bg-muted' },
+  rescheduled: { label: 'Rescheduled', className: 'text-violet-700 bg-violet-50' },
 }
 
-const CHANNEL_ICON = {
+const CHANNEL_ICON: Record<string, React.ElementType> = {
   google_meet: Video,
   phone: Phone,
   in_person: Users,
 }
 
-const CONFIRMATION_ICON: Record<ConfirmationStatus, React.ElementType> = {
-  confirmed:   CheckCircle2,
-  no_response: XCircle,
-  pending:     AlertCircle,
-}
-
 export function SessionRow({ session, showDate = false }: SessionRowProps) {
-  const status = STATUS_CONFIG[session.status] ?? { label: session.status, className: 'bg-slate-100 text-slate-600 border-slate-200' }
+  const status = STATUS_LABEL[session.status] ?? { label: session.status, className: 'text-muted-foreground bg-muted' }
   const ChannelIcon = CHANNEL_ICON[session.channel] ?? Phone
-  const ConfIcon = CONFIRMATION_ICON[session.confirmation_status] ?? AlertCircle
   const isCompleted = session.status === 'completed' || session.status === 'cancelled'
 
   return (
     <Link
       href={isCompleted ? `/coach/sessions/${session.id}/after` : `/coach/sessions/${session.id}`}
       className={cn(
-        'group flex items-center gap-4 px-4 py-3 rounded-lg bg-card border',
-        'hover:shadow-md hover:border-primary/20 transition-all duration-150',
-        isCompleted && 'opacity-55'
+        'flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors',
+        'hover:bg-muted/50',
+        isCompleted && 'opacity-60'
       )}
     >
-      {/* Time column */}
-      <div className="w-14 shrink-0 text-right">
-        <p className="text-sm font-bold tabular-nums text-foreground/80">{formatTime(session.scheduled_at)}</p>
+      {/* Time */}
+      <div className="w-12 shrink-0 text-right">
+        <p className="text-sm font-medium tabular-nums">{formatTime(session.scheduled_at)}</p>
         {showDate && (
-          <p className="text-[11px] text-muted-foreground mt-0.5">
+          <p className="text-[11px] text-muted-foreground">
             {new Date(session.scheduled_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}
           </p>
         )}
       </div>
 
-      {/* Divider */}
-      <div className="w-px self-stretch bg-border/60 shrink-0" />
-
       {/* Teacher info */}
       <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2">
-          <span className="text-sm font-semibold truncate group-hover:text-primary transition-colors">{session.teacher.name}</span>
+        <div className="flex items-center gap-1.5">
+          <span className="text-sm font-medium truncate">{session.teacher.name}</span>
           {session.teacher.ryg && <RYGBadge status={session.teacher.ryg.status} showLabel={false} />}
         </div>
-        <p className="text-xs text-muted-foreground truncate mt-0.5">
+        <p className="text-xs text-muted-foreground truncate">
           {session.teacher.school_name}
           {session.teacher.block_tag && ` · ${session.teacher.block_tag}`}
         </p>
       </div>
 
-      {/* Focus tag */}
-      {session.focus_tag && (
-        <Badge variant="outline" className="hidden sm:inline-flex text-xs shrink-0 rounded-lg">
-          {session.focus_tag}
-        </Badge>
-      )}
-
-      {/* Status & indicators */}
+      {/* Right indicators */}
       <div className="flex items-center gap-2 shrink-0">
-        <ChannelIcon className="h-3.5 w-3.5 text-muted-foreground/60" />
-        <ConfIcon
-          className={cn(
-            'h-3.5 w-3.5',
-            session.confirmation_status === 'confirmed'   ? 'text-emerald-500' :
-            session.confirmation_status === 'no_response' ? 'text-red-400'     :
-            'text-muted-foreground/50'
-          )}
-        />
-        <span className={cn(
-          'text-[11px] px-2.5 py-0.5 rounded-lg border font-semibold',
-          status.className
-        )}>
+        <ChannelIcon className="h-3.5 w-3.5 text-muted-foreground/50" />
+        <span className={cn('text-[11px] px-2 py-0.5 rounded-md font-medium', status.className)}>
           {status.label}
         </span>
       </div>

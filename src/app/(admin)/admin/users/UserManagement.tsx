@@ -2,13 +2,11 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
-import { Badge } from '@/components/ui/badge'
 import { useToast } from '@/hooks/use-toast'
 import { Plus, UserCog } from 'lucide-react'
 import { formatDate } from '@/lib/utils'
@@ -73,10 +71,10 @@ export function UserManagement({ users, cohorts }: UserManagementProps) {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold">User Management</h1>
+          <h1 className="text-lg font-semibold">User Management</h1>
           <p className="text-sm text-muted-foreground">{users.length} users</p>
         </div>
         <Button onClick={() => setCreateOpen(true)} size="sm" className="gap-2">
@@ -84,36 +82,32 @@ export function UserManagement({ users, cohorts }: UserManagementProps) {
         </Button>
       </div>
 
-      <div className="space-y-2">
+      <div className="rounded-lg border border-border divide-y divide-border">
         {users.length === 0 ? (
-          <Card>
-            <CardContent className="py-8 text-center text-muted-foreground text-sm">
-              No users yet. Create the first coach or CM account.
-            </CardContent>
-          </Card>
+          <p className="text-sm text-muted-foreground py-8 text-center">
+            No users yet. Create the first coach or CM account.
+          </p>
         ) : (
           users.map((user) => (
-            <Card key={user.id}>
-              <CardContent className="py-3 flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
-                  <UserCog className="h-4 w-4 text-muted-foreground" />
+            <div key={user.id} className="flex items-center gap-3 px-3 py-2.5">
+              <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center shrink-0">
+                <UserCog className="h-4 w-4 text-muted-foreground" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium">{user.name}</span>
+                  <span className={`text-xs px-1.5 py-0.5 rounded-md font-medium ${roleColors[user.role] ?? 'bg-gray-100 text-gray-700'}`}>
+                    {user.role}
+                  </span>
                 </div>
-                <div className="flex-1">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium">{user.name}</span>
-                    <span className={`text-xs px-1.5 py-0.5 rounded font-medium ${roleColors[user.role] ?? 'bg-gray-100 text-gray-700'}`}>
-                      {user.role}
-                    </span>
-                  </div>
-                  <p className="text-xs text-muted-foreground">
-                    {user.phone ?? 'No phone'}
-                    {' · '}
-                    {cohorts.find((c) => c.id === user.cohort_id)?.name ?? 'No cohort'}
-                  </p>
-                </div>
-                <span className="text-xs text-muted-foreground">{formatDate(user.created_at)}</span>
-              </CardContent>
-            </Card>
+                <p className="text-xs text-muted-foreground">
+                  {user.phone ?? 'No phone'}
+                  {' · '}
+                  {cohorts.find((c) => c.id === user.cohort_id)?.name ?? 'No cohort'}
+                </p>
+              </div>
+              <span className="text-xs text-muted-foreground shrink-0">{formatDate(user.created_at)}</span>
+            </div>
           ))
         )}
       </div>

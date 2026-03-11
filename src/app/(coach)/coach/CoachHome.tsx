@@ -113,14 +113,12 @@ export function CoachHome({ todaySessions, dueActions }: CoachHomeProps) {
   }
 
   return (
-    <div className="space-y-4">
-      {/* Due actions banner */}
+    <div className="space-y-5">
       {dueActions.length > 0 && <DueActionBanner actions={dueActions} />}
 
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold">My Sessions</h1>
+          <h1 className="text-lg font-semibold">My Sessions</h1>
           <p className="text-sm text-muted-foreground">{format(new Date(), 'EEEE, d MMMM yyyy')}</p>
         </div>
         <Button onClick={() => { setScheduleDate(''); setScheduleOpen(true) }} size="sm" className="gap-2">
@@ -141,7 +139,7 @@ export function CoachHome({ todaySessions, dueActions }: CoachHomeProps) {
         </TabsList>
 
         {/* TODAY */}
-        <TabsContent value="today" className="space-y-2 mt-4">
+        <TabsContent value="today" className="space-y-2 mt-3">
           {todaySessions.length === 0 ? (
             <EmptyState
               title="No sessions today"
@@ -158,7 +156,7 @@ export function CoachHome({ todaySessions, dueActions }: CoachHomeProps) {
         </TabsContent>
 
         {/* TOMORROW */}
-        <TabsContent value="tomorrow" className="space-y-2 mt-4">
+        <TabsContent value="tomorrow" className="space-y-2 mt-3">
           {tomorrowSessions.length === 0 ? (
             <EmptyState
               title="No sessions tomorrow"
@@ -170,7 +168,7 @@ export function CoachHome({ todaySessions, dueActions }: CoachHomeProps) {
         </TabsContent>
 
         {/* THIS WEEK */}
-        <TabsContent value="week" className="space-y-2 mt-4">
+        <TabsContent value="week" className="space-y-2 mt-3">
           {weekSessions.length === 0 ? (
             <EmptyState title="No sessions this week" />
           ) : (
@@ -179,7 +177,7 @@ export function CoachHome({ todaySessions, dueActions }: CoachHomeProps) {
         </TabsContent>
 
         {/* CALENDAR */}
-        <TabsContent value="calendar" className="mt-4 space-y-4">
+        <TabsContent value="calendar" className="mt-3 space-y-4">
           <SessionCalendar
             dayCounts={calendarCounts}
             onDayClick={handleCalendarDayClick}

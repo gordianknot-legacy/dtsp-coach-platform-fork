@@ -2,9 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { notFound, redirect } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Separator } from '@/components/ui/separator'
 import { RYGBadge } from '@/components/shared/RYGBadge'
 import { formatDate, formatDateTime } from '@/lib/utils'
 import { ArrowLeft, Phone, School, MapPin, User } from 'lucide-react'
@@ -31,7 +29,6 @@ export default async function TeacherProfilePage({
 
   if (error || !teacher) notFound()
 
-  // Get latest RYG status and history
   const { data: rygHistory } = await supabase
     .from('teacher_ryg')
     .select('id, status, set_at, prior_status, set_by, dimensions_json')
@@ -41,7 +38,6 @@ export default async function TeacherProfilePage({
 
   const currentRYG = rygHistory?.[0] ?? null
 
-  // Get interaction history (last 10 sessions)
   const { data: sessions } = await supabase
     .from('sessions')
     .select(`
@@ -53,123 +49,109 @@ export default async function TeacherProfilePage({
     .order('scheduled_at', { ascending: false })
     .limit(10)
 
-  // Get open action steps
   const openSteps = sessions?.flatMap((s: any) =>
     (s.action_steps ?? []).filter((a: any) => a.status === 'open')
   ) ?? []
 
   return (
-    <div className="space-y-4 max-w-3xl">
+    <div className="space-y-5">
       <Button variant="ghost" size="sm" asChild className="gap-2 -ml-2">
-        <Link href="/coach"><ArrowLeft className="h-4 w-4" /> Back</Link>
+        <Link href="/coach/teachers"><ArrowLeft className="h-4 w-4" /> Back</Link>
       </Button>
 
       {/* Teacher header */}
-      <div className="flex items-start justify-between">
-        <div>
-          <div className="flex items-center gap-2 flex-wrap">
-            <h1 className="text-xl font-bold">{teacher.name}</h1>
-            {currentRYG && <RYGBadge status={currentRYG.status as RYGStatus} />}
-          </div>
-          <p className="text-sm text-muted-foreground">{teacher.designation ?? 'Teacher'}</p>
+      <div>
+        <div className="flex items-center gap-2 flex-wrap">
+          <h1 className="text-lg font-semibold">{teacher.name}</h1>
+          {currentRYG && <RYGBadge status={currentRYG.status as RYGStatus} />}
         </div>
+        <p className="text-sm text-muted-foreground">{teacher.designation ?? 'Teacher'}</p>
       </div>
 
       {/* Contact & school info */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <Card>
-          <CardContent className="pt-4 pb-4 space-y-2">
+        <div className="rounded-lg border border-border p-3 space-y-2">
+          <div className="flex items-center gap-2 text-sm">
+            <School className="h-4 w-4 text-muted-foreground" />
+            <span>{teacher.school_name}</span>
+          </div>
+          {teacher.block_tag && (
             <div className="flex items-center gap-2 text-sm">
-              <School className="h-4 w-4 text-muted-foreground" />
-              <span>{teacher.school_name}</span>
+              <MapPin className="h-4 w-4 text-muted-foreground" />
+              <span>{teacher.block_tag}</span>
             </div>
-            {teacher.block_tag && (
-              <div className="flex items-center gap-2 text-sm">
-                <MapPin className="h-4 w-4 text-muted-foreground" />
-                <span>{teacher.block_tag}</span>
-              </div>
-            )}
-            {teacher.phone && (
-              <div className="flex items-center gap-2 text-sm">
-                <Phone className="h-4 w-4 text-muted-foreground" />
-                <span className="font-mono">{teacher.phone}</span>
-              </div>
-            )}
-            {teacher.udise_code && (
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <span className="font-mono text-xs">UDISE: {teacher.udise_code}</span>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+          )}
+          {teacher.phone && (
+            <div className="flex items-center gap-2 text-sm">
+              <Phone className="h-4 w-4 text-muted-foreground" />
+              <span className="font-mono">{teacher.phone}</span>
+            </div>
+          )}
+          {teacher.udise_code && (
+            <div className="text-xs text-muted-foreground font-mono">
+              UDISE: {teacher.udise_code}
+            </div>
+          )}
+        </div>
 
         {(teacher.hm_name || teacher.hm_phone) && (
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                Head Master
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="pt-0 pb-4 space-y-2">
-              {teacher.hm_name && (
-                <div className="flex items-center gap-2 text-sm">
-                  <User className="h-4 w-4 text-muted-foreground" />
-                  <span>{teacher.hm_name}</span>
-                </div>
-              )}
-              {teacher.hm_phone && (
-                <div className="flex items-center gap-2 text-sm">
-                  <Phone className="h-4 w-4 text-muted-foreground" />
-                  <span className="font-mono">{teacher.hm_phone}</span>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+          <div className="rounded-lg border border-border p-3 space-y-2">
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Head Master</p>
+            {teacher.hm_name && (
+              <div className="flex items-center gap-2 text-sm">
+                <User className="h-4 w-4 text-muted-foreground" />
+                <span>{teacher.hm_name}</span>
+              </div>
+            )}
+            {teacher.hm_phone && (
+              <div className="flex items-center gap-2 text-sm">
+                <Phone className="h-4 w-4 text-muted-foreground" />
+                <span className="font-mono">{teacher.hm_phone}</span>
+              </div>
+            )}
+          </div>
         )}
       </div>
 
       {/* Open action steps */}
       {openSteps.length > 0 && (
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm">Open action steps ({openSteps.length})</CardTitle>
-          </CardHeader>
-          <CardContent className="pb-4 space-y-2">
+        <div className="rounded-lg border border-amber-200 bg-amber-50 p-3">
+          <p className="text-sm font-medium text-amber-900 mb-2">
+            {openSteps.length} open action step{openSteps.length !== 1 ? 's' : ''}
+          </p>
+          <div className="space-y-2">
             {openSteps.map((step: any) => (
               <div key={step.id} className="flex items-start gap-3">
                 <div className="w-1.5 h-1.5 rounded-full bg-amber-500 mt-1.5 shrink-0" />
                 <div className="flex-1">
-                  <p className="text-sm">{step.description}</p>
+                  <p className="text-sm text-amber-900">{step.description}</p>
                   {step.due_date && (
-                    <p className="text-xs text-muted-foreground">Due {formatDate(step.due_date)}</p>
+                    <p className="text-xs text-amber-700">Due {formatDate(step.due_date)}</p>
                   )}
                 </div>
               </div>
             ))}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       )}
 
       {/* Session history */}
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm">Session history</CardTitle>
-        </CardHeader>
-        <CardContent className="pb-4 space-y-3">
+      <div>
+        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">Session history</p>
+        <div className="rounded-lg border border-border divide-y divide-border">
           {(!sessions || sessions.length === 0) ? (
-            <p className="text-sm text-muted-foreground">No sessions yet.</p>
+            <p className="text-sm text-muted-foreground py-6 text-center">No sessions yet.</p>
           ) : (
-            sessions.map((s: any, i: number) => (
-              <div key={s.id}>
-                {i > 0 && <Separator className="mb-3" />}
+            sessions.map((s: any) => (
+              <div key={s.id} className="px-3 py-2.5">
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex-1">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-wrap">
                       <span className="text-sm font-medium">{formatDate(s.scheduled_at)}</span>
                       {s.focus_tag && (
                         <Badge variant="outline" className="text-xs">{s.focus_tag}</Badge>
                       )}
-                      <span className={`text-xs px-1.5 py-0.5 rounded font-medium ${
+                      <span className={`text-xs px-1.5 py-0.5 rounded-md font-medium ${
                         s.status === 'completed' ? 'bg-gray-100 text-gray-600' :
                         s.status === 'no_show' ? 'bg-red-100 text-red-700' :
                         'bg-blue-50 text-blue-700'
@@ -183,25 +165,23 @@ export default async function TeacherProfilePage({
                       </p>
                     )}
                   </div>
-                  <Button asChild variant="ghost" size="sm" className="shrink-0">
+                  <Button asChild variant="ghost" size="sm" className="shrink-0 h-7 text-xs">
                     <Link href={`/coach/sessions/${s.id}/after`}>View</Link>
                   </Button>
                 </div>
               </div>
             ))
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       {/* RYG history */}
       {rygHistory && rygHistory.length > 0 && (
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm">RYG status history</CardTitle>
-          </CardHeader>
-          <CardContent className="pb-4 space-y-2">
+        <div>
+          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">RYG history</p>
+          <div className="rounded-lg border border-border divide-y divide-border">
             {rygHistory.map((ryg: any) => (
-              <div key={ryg.id} className="flex items-center gap-3 text-sm">
+              <div key={ryg.id} className="flex items-center gap-3 px-3 py-2.5 text-sm">
                 <RYGBadge status={ryg.status as RYGStatus} />
                 <span className="text-muted-foreground">{formatDateTime(ryg.set_at)}</span>
                 {ryg.prior_status && (
@@ -211,8 +191,8 @@ export default async function TeacherProfilePage({
                 )}
               </div>
             ))}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       )}
     </div>
   )

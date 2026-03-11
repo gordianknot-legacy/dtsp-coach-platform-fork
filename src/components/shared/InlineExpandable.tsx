@@ -22,10 +22,10 @@ export function InlineExpandable({
   const [open, setOpen] = useState(defaultOpen)
 
   return (
-    <div className={cn('border rounded-lg overflow-hidden', className)}>
+    <div className={cn('rounded-lg border border-border overflow-hidden', className)}>
       <button
         type="button"
-        className="w-full flex items-center justify-between px-4 py-3 bg-muted/30 hover:bg-muted/60 transition-colors text-left"
+        className="w-full flex items-center justify-between px-3 py-2.5 hover:bg-muted/50 transition-colors text-left"
         onClick={() => setOpen(!open)}
       >
         <div className="flex items-center gap-2">
@@ -38,7 +38,7 @@ export function InlineExpandable({
           {badge}
         </div>
       </button>
-      {open && <div className="px-4 py-4 border-t">{children}</div>}
+      {open && <div className="px-3 py-3 border-t border-border">{children}</div>}
     </div>
   )
 }

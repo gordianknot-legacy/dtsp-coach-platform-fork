@@ -1,5 +1,4 @@
 import { cn } from '@/lib/utils'
-import { Inbox } from 'lucide-react'
 
 interface EmptyStateProps {
   icon?: React.ReactNode
@@ -11,15 +10,13 @@ interface EmptyStateProps {
 
 export function EmptyState({ icon, title, description, action, className }: EmptyStateProps) {
   return (
-    <div className={cn('flex flex-col items-center justify-center py-12 text-center', className)}>
-      <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center mb-3">
-        {icon ?? <Inbox className="h-4 w-4 text-muted-foreground" />}
-      </div>
-      <h3 className="font-medium text-foreground/80 text-sm">{title}</h3>
+    <div className={cn('flex flex-col items-center justify-center py-14 text-center', className)}>
+      {icon && <div className="mb-3 text-muted-foreground/40">{icon}</div>}
+      <p className="text-sm font-medium text-muted-foreground">{title}</p>
       {description && (
-        <p className="text-sm text-muted-foreground mt-1.5 max-w-xs leading-relaxed">{description}</p>
+        <p className="text-sm text-muted-foreground/70 mt-1 max-w-xs">{description}</p>
       )}
-      {action && <div className="mt-5">{action}</div>}
+      {action && <div className="mt-4">{action}</div>}
     </div>
   )
 }

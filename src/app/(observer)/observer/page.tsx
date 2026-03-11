@@ -10,14 +10,16 @@ export default async function ObserverPage() {
   // For alpha, observer sees the same leadership snapshot view as CM
   // In a future build, scope this to org_units the observer is assigned to
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       <div>
-        <h1 className="text-xl font-bold">State Observer View</h1>
+        <h1 className="text-lg font-semibold">State Observer View</h1>
         <p className="text-sm text-muted-foreground">Read-only program snapshot</p>
       </div>
-      <p className="text-sm text-muted-foreground">
-        Observer dashboard is scoped to your assigned org unit. Contact your program admin to configure access.
-      </p>
+      <div className="rounded-lg border border-border p-4">
+        <p className="text-sm text-muted-foreground">
+          Observer dashboard is scoped to your assigned org unit. Contact your program admin to configure access.
+        </p>
+      </div>
     </div>
   )
 }

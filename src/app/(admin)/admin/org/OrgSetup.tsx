@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -65,7 +64,6 @@ export function OrgSetup({ orgUnits }: { orgUnits: OrgUnit[] }) {
     }
   }
 
-  // Group by type
   const byType = {
     state: orgUnits.filter((u) => u.type === 'state'),
     district: orgUnits.filter((u) => u.type === 'district'),
@@ -73,10 +71,10 @@ export function OrgSetup({ orgUnits }: { orgUnits: OrgUnit[] }) {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold">Org Setup</h1>
+          <h1 className="text-lg font-semibold">Org Setup</h1>
           <p className="text-sm text-muted-foreground">State → District → Cohort hierarchy</p>
         </div>
         <Button onClick={() => setCreateOpen(true)} size="sm" className="gap-2">
@@ -84,33 +82,28 @@ export function OrgSetup({ orgUnits }: { orgUnits: OrgUnit[] }) {
         </Button>
       </div>
 
-      {/* Hierarchy display */}
       {(['state', 'district', 'cohort'] as const).map((type) => (
-        <Card key={type}>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm capitalize flex items-center gap-2">
-              {(() => { const Icon = TYPE_ICONS[type]; return <Icon className="h-4 w-4" /> })()}
-              {type}s ({byType[type].length})
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="pb-4">
-            {byType[type].length === 0 ? (
-              <p className="text-sm text-muted-foreground">None created yet.</p>
-            ) : (
-              <div className="flex flex-wrap gap-2">
-                {byType[type].map((unit) => {
-                  const parent = orgUnits.find((u) => u.id === unit.parent_id)
-                  return (
-                    <div key={unit.id} className="flex items-center gap-1.5 text-sm">
-                      <Badge variant="outline" className={TYPE_COLORS[type]}>{unit.name}</Badge>
-                      {parent && <span className="text-xs text-muted-foreground">in {parent.name}</span>}
-                    </div>
-                  )
-                })}
-              </div>
-            )}
-          </CardContent>
-        </Card>
+        <div key={type} className="rounded-lg border border-border p-4">
+          <p className="text-sm font-medium capitalize flex items-center gap-2 mb-3">
+            {(() => { const Icon = TYPE_ICONS[type]; return <Icon className="h-4 w-4 text-muted-foreground" /> })()}
+            {type}s ({byType[type].length})
+          </p>
+          {byType[type].length === 0 ? (
+            <p className="text-sm text-muted-foreground">None created yet.</p>
+          ) : (
+            <div className="flex flex-wrap gap-2">
+              {byType[type].map((unit) => {
+                const parent = orgUnits.find((u) => u.id === unit.parent_id)
+                return (
+                  <div key={unit.id} className="flex items-center gap-1.5 text-sm">
+                    <Badge variant="outline" className={TYPE_COLORS[type]}>{unit.name}</Badge>
+                    {parent && <span className="text-xs text-muted-foreground">in {parent.name}</span>}
+                  </div>
+                )
+              })}
+            </div>
+          )}
+        </div>
       ))}
 
       <Dialog open={createOpen} onOpenChange={setCreateOpen}>

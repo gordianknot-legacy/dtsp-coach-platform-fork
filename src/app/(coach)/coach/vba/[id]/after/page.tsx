@@ -2,7 +2,6 @@ import { createClient } from '@/lib/supabase/server'
 import { notFound, redirect } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { ArrowLeft } from 'lucide-react'
 import { formatDateTime } from '@/lib/utils'
 
@@ -42,52 +41,42 @@ export default async function AfterVBAPage({
     sum + Object.values(r.numeracy_results ?? {}).filter((v) => v === 'pass').length, 0)
 
   return (
-    <div className="space-y-4 max-w-2xl">
+    <div className="space-y-5 max-w-2xl">
       <Button variant="ghost" size="sm" asChild className="gap-2 -ml-2">
         <Link href="/coach"><ArrowLeft className="h-4 w-4" /> Back to Home</Link>
       </Button>
 
       <div>
-        <h1 className="text-xl font-bold">VBA Summary — {vbaSession.teacher.name}</h1>
+        <h1 className="text-lg font-semibold">VBA Summary — {vbaSession.teacher.name}</h1>
         <p className="text-sm text-muted-foreground">{formatDateTime(vbaSession.scheduled_at)}</p>
       </div>
 
       {/* Results summary */}
       <div className="grid grid-cols-3 gap-3">
-        <Card>
-          <CardContent className="pt-4 pb-4 text-center">
-            <p className="text-2xl font-bold">{totalStudents}</p>
-            <p className="text-xs text-muted-foreground">Students assessed</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-4 pb-4 text-center">
-            <p className="text-2xl font-bold text-green-700">{totalLiteracyPasses}</p>
-            <p className="text-xs text-muted-foreground">Literacy passes</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-4 pb-4 text-center">
-            <p className="text-2xl font-bold text-blue-700">{totalNumeracyPasses}</p>
-            <p className="text-xs text-muted-foreground">Numeracy passes</p>
-          </CardContent>
-        </Card>
+        <div className="rounded-lg border border-border p-3 text-center">
+          <p className="text-2xl font-semibold tabular-nums">{totalStudents}</p>
+          <p className="text-xs text-muted-foreground">Students assessed</p>
+        </div>
+        <div className="rounded-lg border border-border p-3 text-center">
+          <p className="text-2xl font-semibold tabular-nums text-green-700">{totalLiteracyPasses}</p>
+          <p className="text-xs text-muted-foreground">Literacy passes</p>
+        </div>
+        <div className="rounded-lg border border-border p-3 text-center">
+          <p className="text-2xl font-semibold tabular-nums text-blue-700">{totalNumeracyPasses}</p>
+          <p className="text-xs text-muted-foreground">Numeracy passes</p>
+        </div>
       </div>
 
       {/* WhatsApp summary */}
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm">WhatsApp summary for teacher</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-xs text-muted-foreground mb-3">
-            Generate a VBA results summary to share with the teacher via WhatsApp.
-          </p>
-          <Button asChild variant="outline" size="sm">
-            <Link href="/coach">Return to home</Link>
-          </Button>
-        </CardContent>
-      </Card>
+      <div className="rounded-lg border border-border p-4">
+        <p className="text-sm font-medium mb-1">WhatsApp summary for teacher</p>
+        <p className="text-xs text-muted-foreground mb-3">
+          Generate a VBA results summary to share with the teacher via WhatsApp.
+        </p>
+        <Button asChild variant="outline" size="sm">
+          <Link href="/coach">Return to home</Link>
+        </Button>
+      </div>
     </div>
   )
 }

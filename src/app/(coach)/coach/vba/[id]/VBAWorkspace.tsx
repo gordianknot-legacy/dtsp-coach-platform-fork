@@ -3,7 +3,6 @@
 import { useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { useToast } from '@/hooks/use-toast'
@@ -131,14 +130,14 @@ export function VBAWorkspace({ vbaSession, studentResults, vbaChecklist }: VBAWo
   const completedStudents = Object.values(results).length
 
   return (
-    <div className="space-y-4 max-w-2xl">
+    <div className="space-y-5 max-w-2xl">
       <Button variant="ghost" size="sm" asChild className="gap-2 -ml-2">
         <Link href="/coach"><ArrowLeft className="h-4 w-4" /> Back</Link>
       </Button>
 
       <div>
         <div className="flex items-center gap-2 flex-wrap">
-          <h1 className="text-xl font-bold">VBA — {vbaSession.teacher.name}</h1>
+          <h1 className="text-lg font-semibold">VBA — {vbaSession.teacher.name}</h1>
           <Badge className="bg-blue-50 text-blue-700 border-blue-200">Video-Based Assessment</Badge>
           {vbaSession.meet_link && (
             <Button
@@ -167,14 +166,14 @@ export function VBAWorkspace({ vbaSession, studentResults, vbaChecklist }: VBAWo
           const hasData = !!r
 
           return (
-            <Card key={num} className={hasData ? 'border-green-200' : ''}>
+            <div key={num} className={`rounded-lg border ${hasData ? 'border-green-200' : 'border-border'}`}>
               {/* Collapsed row — single tap to expand */}
               <button
                 type="button"
-                className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-muted/30 transition-colors"
+                className="w-full flex items-center gap-3 px-3 py-2.5 text-left hover:bg-muted/50 transition-colors"
                 onClick={() => toggleStudent(num)}
               >
-                <span className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-sm font-bold shrink-0">
+                <span className="w-7 h-7 rounded-full bg-muted flex items-center justify-center text-sm font-medium shrink-0">
                   {num}
                 </span>
                 <div className="flex-1 min-w-0">
@@ -191,7 +190,7 @@ export function VBAWorkspace({ vbaSession, studentResults, vbaChecklist }: VBAWo
 
               {/* Expanded — pass/fail capture */}
               {isExpanded && (
-                <CardContent className="pt-0 pb-4 border-t">
+                <div className="px-3 pb-3 border-t border-border">
                   <div className="space-y-4 mt-3">
                     {/* Literacy */}
                     <div>
@@ -280,9 +279,9 @@ export function VBAWorkspace({ vbaSession, studentResults, vbaChecklist }: VBAWo
                       </Button>
                     )}
                   </div>
-                </CardContent>
+                </div>
               )}
-            </Card>
+            </div>
           )
         })}
       </div>

@@ -1,10 +1,8 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { AlertCircle, ArrowRight } from 'lucide-react'
-
+import { ChevronRight } from 'lucide-react'
 
 
 export default async function CoachesPage() {
@@ -26,7 +24,6 @@ export default async function CoachesPage() {
     .order('name')
 
   const coachIds = (coaches ?? []).map((c: any) => c.id)
-
   const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
 
   const [sessions, escalations, assignments] = coachIds.length > 0
@@ -36,13 +33,11 @@ export default async function CoachesPage() {
           .select('status, coach_id, confirmation_status')
           .in('coach_id', coachIds)
           .gte('scheduled_at', thirtyDaysAgo),
-
         supabase
           .from('escalations')
           .select('coach_id, status')
           .in('coach_id', coachIds)
           .eq('status', 'open'),
-
         supabase
           .from('assignments')
           .select('coach_id')
@@ -61,53 +56,38 @@ export default async function CoachesPage() {
     const teacherCount = assignmentData.filter((a: any) => a.coach_id === coach.id).length
     const completed = coachSessions.filter((s: any) => s.status === 'completed').length
     const noShows = coachSessions.filter((s: any) => s.status === 'no_show').length
-    const pending = coachSessions.filter((s: any) => s.confirmation_status === 'pending').length
 
-    return { ...coach, openEsc, teacherCount, completed, noShows, pendingConfirmation: pending }
+    return { ...coach, openEsc, teacherCount, completed, noShows }
   }).sort((a: any, b: any) => b.openEsc - a.openEsc)
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       <div>
-        <h1 className="text-xl font-bold">Coach Triage</h1>
-        <p className="text-sm text-muted-foreground">Sorted by urgency — most escalations first</p>
+        <h1 className="text-lg font-semibold">Coaches</h1>
+        <p className="text-sm text-muted-foreground">Sorted by escalation count</p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <div className="rounded-lg border border-border divide-y divide-border">
         {coachMetrics.map((coach: any) => (
           <Link key={coach.id} href={`/cm/coaches/${coach.id}`}>
-            <Card className="hover:shadow-md hover:border-primary/20 transition-all duration-150 cursor-pointer">
-              <CardContent className="pt-4 pb-4">
-                <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-3 px-3 py-3 hover:bg-muted/50 transition-colors">
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2">
                   <span className="text-sm font-medium">{coach.name}</span>
-                  <div className="flex items-center gap-2">
-                    {coach.openEsc > 0 && (
-                      <Badge className="bg-red-100 text-red-700 gap-1">
-                        <AlertCircle className="h-3 w-3" />
-                        {coach.openEsc}
-                      </Badge>
-                    )}
-                    <ArrowRight className="h-4 w-4 text-muted-foreground" />
-                  </div>
+                  {coach.openEsc > 0 && (
+                    <Badge variant="destructive" className="text-[10px] h-5 px-1.5">
+                      {coach.openEsc} esc
+                    </Badge>
+                  )}
                 </div>
-                <div className="grid grid-cols-3 gap-2 text-center">
-                  <div>
-                    <p className="text-base font-bold tabular-nums">{coach.teacherCount}</p>
-                    <p className="text-[11px] text-muted-foreground">Teachers</p>
-                  </div>
-                  <div>
-                    <p className="text-base font-bold tabular-nums text-emerald-600">{coach.completed}</p>
-                    <p className="text-[11px] text-muted-foreground">Done</p>
-                  </div>
-                  <div>
-                    <p className={`text-base font-bold tabular-nums ${coach.noShows > 0 ? 'text-red-600' : 'text-muted-foreground'}`}>
-                      {coach.noShows}
-                    </p>
-                    <p className="text-[11px] text-muted-foreground">No-shows</p>
-                  </div>
+                <div className="flex items-center gap-3 mt-0.5 text-xs text-muted-foreground">
+                  <span>{coach.teacherCount} teachers</span>
+                  <span>{coach.completed} done</span>
+                  {coach.noShows > 0 && <span className="text-red-600">{coach.noShows} no-shows</span>}
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+              <ChevronRight className="h-4 w-4 text-muted-foreground/30 shrink-0" />
+            </div>
           </Link>
         ))}
       </div>

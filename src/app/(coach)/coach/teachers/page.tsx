@@ -39,12 +39,10 @@ export default async function TeachersPage() {
   })
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-bold">My Teachers</h1>
-          <p className="text-sm text-muted-foreground">{sorted.length} assigned</p>
-        </div>
+    <div className="space-y-5">
+      <div>
+        <h1 className="text-lg font-semibold">My Teachers</h1>
+        <p className="text-sm text-muted-foreground">{sorted.length} assigned</p>
       </div>
 
       {sorted.length === 0 ? (
@@ -53,12 +51,12 @@ export default async function TeachersPage() {
           <p className="text-xs mt-1">Contact your admin to get teachers assigned.</p>
         </div>
       ) : (
-        <div className="divide-y rounded-lg border">
+        <div className="divide-y divide-border rounded-lg border border-border">
           {sorted.map((teacher: any) => (
             <Link
               key={teacher.id}
               href={`/coach/teachers/${teacher.id}`}
-              className="flex items-center gap-4 p-3 hover:bg-muted/40 transition-colors"
+              className="flex items-center gap-3 px-3 py-3 hover:bg-muted/50 transition-colors"
             >
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
