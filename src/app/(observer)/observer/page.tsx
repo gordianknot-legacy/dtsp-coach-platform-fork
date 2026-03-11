@@ -1,24 +1,30 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import { EmptyState } from '@/components/shared/EmptyState'
+import { Eye } from 'lucide-react'
 
-// Observer sees same snapshot as CM — redirect to a shared snapshot view
 export default async function ObserverPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  // For alpha, observer sees the same leadership snapshot view as CM
-  // In a future build, scope this to org_units the observer is assigned to
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       <div>
-        <h1 className="text-lg font-semibold">State Observer View</h1>
-        <p className="text-sm text-muted-foreground">Read-only program snapshot</p>
+        <h1 className="text-2xl font-bold tracking-tight">State Observer View</h1>
+        <p className="text-sm text-muted-foreground mt-1">Read-only program snapshot</p>
       </div>
-      <div className="rounded-lg border border-border p-4">
-        <p className="text-sm text-muted-foreground">
-          Observer dashboard is scoped to your assigned org unit. Contact your program admin to configure access.
-        </p>
+
+      <div className="rounded-xl border border-blue-200 bg-blue-50/50 p-5 flex items-start gap-3">
+        <div className="w-9 h-9 rounded-lg bg-blue-100 flex items-center justify-center shrink-0 mt-0.5">
+          <Eye className="h-5 w-5 text-blue-600" />
+        </div>
+        <div>
+          <p className="text-sm font-medium text-blue-900">Dashboard not configured yet</p>
+          <p className="text-sm text-blue-700 mt-1">
+            Observer dashboard is scoped to your assigned org unit. Contact your program admin to configure access.
+          </p>
+        </div>
       </div>
     </div>
   )

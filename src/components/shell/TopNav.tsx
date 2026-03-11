@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { cn } from '@/lib/utils'
-import { LogOut, Bell, ChevronDown, Check, Menu } from 'lucide-react'
+import { LogOut, Bell, ChevronDown, Check } from 'lucide-react'
 import { ROLE_LABEL } from './nav-config'
 import type { UserRole } from '@/lib/supabase/types'
 import { useState } from 'react'
@@ -13,10 +13,9 @@ interface TopNavProps {
   role: UserRole
   userName: string
   escalationCount?: number
-  onMenuClick?: () => void
 }
 
-export function TopNav({ role, userName, escalationCount = 0, onMenuClick }: TopNavProps) {
+export function TopNav({ role, userName, escalationCount = 0 }: TopNavProps) {
   const router = useRouter()
   const supabase = createClient()
   const [showRoleSwitcher, setShowRoleSwitcher] = useState(false)
@@ -30,15 +29,6 @@ export function TopNav({ role, userName, escalationCount = 0, onMenuClick }: Top
   return (
     <header className="sticky top-0 z-40 w-full bg-[hsl(220,20%,18%)] shadow-md h-14">
       <div className="flex h-14 items-center gap-4 px-4 sm:px-6">
-
-        {/* Hamburger — mobile only */}
-        <button
-          onClick={onMenuClick}
-          className="md:hidden p-1.5 rounded-md hover:bg-white/10 text-white/70 hover:text-white transition-colors"
-          aria-label="Open navigation menu"
-        >
-          <Menu className="h-5 w-5" />
-        </button>
 
         {/* Brand */}
         <Link href="/" className="flex items-center gap-1.5 shrink-0">
@@ -79,7 +69,7 @@ export function TopNav({ role, userName, escalationCount = 0, onMenuClick }: Top
                   : 'text-white/60 hover:text-white hover:bg-white/10'
               )}
             >
-              <div className="w-6 h-6 rounded-md bg-white text-[hsl(220,20%,18%)] flex items-center justify-center text-xs font-bold">
+              <div className="w-6 h-6 rounded-full bg-white text-[hsl(220,20%,18%)] flex items-center justify-center text-xs font-bold">
                 {userName.charAt(0).toUpperCase()}
               </div>
               <span className="hidden sm:inline text-white/80">{ROLE_LABEL[role]}</span>

@@ -32,18 +32,18 @@ function LoginForm() {
 
   return (
     <>
-      <div className="mb-8">
-        <div className="w-12 h-12 rounded-xl bg-brand text-brand-foreground flex items-center justify-center text-lg font-bold mb-4">
+      <div className="mb-8 text-center">
+        <div className="w-14 h-14 rounded-xl bg-brand text-brand-foreground flex items-center justify-center text-xl font-bold mx-auto mb-5 shadow-sm">
           DT
         </div>
-        <h1 className="text-2xl font-bold">DTSP Coach Platform</h1>
-        <p className="text-sm text-muted-foreground mt-1">
+        <h1 className="text-2xl font-bold tracking-tight">Welcome to DTSP</h1>
+        <p className="text-sm text-muted-foreground mt-1.5">
           District Teacher Support Programme
         </p>
       </div>
 
       {error === 'access_denied' && (
-        <div className="mb-5 rounded-lg border border-red-200 bg-red-50 p-3">
+        <div className="mb-5 rounded-xl border border-red-200 bg-red-50 p-4">
           <p className="text-sm font-medium text-red-900">Access denied</p>
           <p className="text-xs text-red-700 mt-1">
             Your email is not authorized. Contact your program administrator.
@@ -52,17 +52,17 @@ function LoginForm() {
       )}
 
       {error === 'auth_callback_failed' && (
-        <div className="mb-5 rounded-lg border border-red-200 bg-red-50 p-3">
+        <div className="mb-5 rounded-xl border border-red-200 bg-red-50 p-4">
           <p className="text-sm text-red-800">Authentication failed. Please try again.</p>
         </div>
       )}
 
       <Button
         onClick={handleGoogleLogin}
-        className="w-full h-11 gap-2"
+        className="w-full h-12 gap-2.5 text-sm font-medium shadow-sm"
         variant="outline"
       >
-        <svg className="h-4 w-4" viewBox="0 0 24 24">
+        <svg className="h-5 w-5" viewBox="0 0 24 24">
           <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
           <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
           <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
@@ -71,8 +71,8 @@ function LoginForm() {
         Sign in with Google
       </Button>
 
-      <p className="text-xs text-muted-foreground mt-4 text-center">
-        Authorized CSF team members only.
+      <p className="text-xs text-muted-foreground mt-5 text-center">
+        Sign in with your CSF Google account
       </p>
     </>
   )

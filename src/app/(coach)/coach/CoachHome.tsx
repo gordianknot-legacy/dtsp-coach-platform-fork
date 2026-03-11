@@ -118,8 +118,8 @@ export function CoachHome({ todaySessions, dueActions }: CoachHomeProps) {
 
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-semibold">My Sessions</h1>
-          <p className="text-sm text-muted-foreground">{format(new Date(), 'EEEE, d MMMM yyyy')}</p>
+          <h1 className="text-2xl font-bold tracking-tight">My Sessions</h1>
+          <p className="text-sm text-muted-foreground mt-1">{format(new Date(), 'EEEE, d MMMM yyyy')}</p>
         </div>
         <Button onClick={() => { setScheduleDate(''); setScheduleOpen(true) }} size="sm" className="gap-2">
           <Plus className="h-4 w-4" />
@@ -145,7 +145,8 @@ export function CoachHome({ todaySessions, dueActions }: CoachHomeProps) {
               title="You're all caught up today!"
               description="Your scheduled sessions will appear here."
               action={
-                <Button variant="outline" size="sm" onClick={() => { setScheduleDate(''); setScheduleOpen(true) }}>
+                <Button onClick={() => { setScheduleDate(''); setScheduleOpen(true) }} size="sm" className="gap-2">
+                  <Plus className="h-4 w-4" />
                   Schedule a session
                 </Button>
               }

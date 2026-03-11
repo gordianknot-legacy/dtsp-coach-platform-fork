@@ -2,8 +2,9 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { KPICard } from '@/components/shared/KPICard'
+import { EmptyState } from '@/components/shared/EmptyState'
 import { Button } from '@/components/ui/button'
-import { ChevronRight } from 'lucide-react'
+import { ChevronRight, Users } from 'lucide-react'
 import { formatDate } from '@/lib/utils'
 
 
@@ -55,10 +56,10 @@ export default async function CMHome() {
   const noShowCount = sessions.filter((s: any) => s.status === 'no_show').length
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div>
-        <h1 className="text-xl font-semibold">Cluster Overview</h1>
-        <p className="text-sm text-muted-foreground">Last 30 days</p>
+        <h1 className="text-2xl font-bold tracking-tight">Cluster Overview</h1>
+        <p className="text-sm text-muted-foreground mt-1">Last 30 days</p>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -69,35 +70,40 @@ export default async function CMHome() {
       </div>
 
       {escalations.length > 0 && (
-        <div className="rounded-lg border border-red-200 bg-red-50 p-3">
-          <p className="text-sm font-medium text-red-900 mb-2">
+        <div className="rounded-xl border border-red-200 bg-red-50/80 p-4">
+          <p className="text-sm font-semibold text-red-900 mb-2.5">
             {escalations.length} open escalation{escalations.length !== 1 ? 's' : ''}
           </p>
-          <div className="space-y-1.5">
+          <div className="space-y-2">
             {escalations.map((esc: any) => (
               <div key={esc.id} className="flex items-center justify-between gap-2">
-                <p className="text-xs text-red-800">
+                <p className="text-sm text-red-800">
                   <span className="font-medium">{esc.teacher?.name ?? 'Unknown'}</span>
                   {' · '}{esc.trigger_type.replace(/_/g, ' ')}
                   {' · Coach: '}{esc.coach?.name ?? 'Unassigned'}
                 </p>
-                <span className="text-xs text-red-700 shrink-0 tabular-nums">{formatDate(esc.auto_created_at)}</span>
+                <span className="text-xs text-red-600 shrink-0 tabular-nums">{formatDate(esc.auto_created_at)}</span>
               </div>
             ))}
           </div>
-          <div className="mt-2.5">
-            <Button asChild variant="ghost" size="sm" className="h-7 text-xs text-red-800 hover:text-red-900 hover:bg-red-100 -ml-2">
-              <Link href="/cm/coaches">View all</Link>
+          <div className="mt-3">
+            <Button asChild variant="ghost" size="sm" className="h-8 text-xs text-red-800 hover:text-red-900 hover:bg-red-100 -ml-2">
+              <Link href="/cm/coaches">View all escalations</Link>
             </Button>
           </div>
         </div>
       )}
 
       <div>
-        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">Coaches</p>
-        <div className="rounded-lg border border-border bg-card shadow-md divide-y divide-border">
+        <p className="text-sm font-semibold text-foreground mb-3">Coaches</p>
+        <div className="rounded-xl border border-border bg-card shadow-sm divide-y divide-border">
           {coachList.length === 0 ? (
-            <p className="text-sm text-muted-foreground py-6 text-center">No coaches in your cluster yet.</p>
+            <EmptyState
+              icon={<Users className="h-7 w-7" />}
+              title="No coaches in your cluster yet"
+              description="Coaches will appear here once assigned by an admin."
+              className="py-12"
+            />
           ) : (
             coachList.map((coach: any) => {
               const coachSessions = sessions.filter((s: any) => s.coach_id === coach.id)
@@ -106,12 +112,17 @@ export default async function CMHome() {
 
               return (
                 <Link key={coach.id} href={`/cm/coaches/${coach.id}`}>
-                  <div className="flex items-center justify-between px-3 py-2.5 hover:bg-muted/50 hover:-translate-y-px transition-all duration-150">
-                    <span className="text-sm font-semibold">{coach.name}</span>
+                  <div className="flex items-center justify-between px-4 py-3 hover:bg-muted/50 transition-colors group">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-bold">
+                        {coach.name?.charAt(0)?.toUpperCase() ?? '?'}
+                      </div>
+                      <span className="text-sm font-semibold">{coach.name}</span>
+                    </div>
                     <div className="flex items-center gap-3 text-xs text-muted-foreground">
                       <span className="tabular-nums">{coachCompleted} done</span>
                       {coachNoShows > 0 && <span className="text-red-600 font-medium tabular-nums">{coachNoShows} no-shows</span>}
-                      <ChevronRight className="h-3.5 w-3.5 text-muted-foreground/30" />
+                      <ChevronRight className="h-3.5 w-3.5 text-muted-foreground/30 group-hover:text-muted-foreground group-hover:translate-x-0.5 transition-all" />
                     </div>
                   </div>
                 </Link>
