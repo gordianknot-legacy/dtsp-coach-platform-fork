@@ -32,13 +32,18 @@ function LoginForm() {
 
   return (
     <>
-      <div className="mb-8 text-center">
-        <div className="w-14 h-14 rounded-xl bg-brand text-brand-foreground flex items-center justify-center text-xl font-bold mx-auto mb-5 shadow-sm">
+      {/* Mobile-only brand badge (desktop has the left panel) */}
+      <div className="md:hidden flex items-center gap-2.5 mb-10">
+        <div className="w-10 h-10 rounded-xl bg-brand text-brand-foreground flex items-center justify-center text-base font-bold">
           DT
         </div>
-        <h1 className="text-2xl font-bold tracking-tight">Welcome to DTSP</h1>
+        <span className="text-lg font-semibold">DTSP</span>
+      </div>
+
+      <div className="mb-8">
+        <h1 className="text-2xl font-bold tracking-tight">Sign in</h1>
         <p className="text-sm text-muted-foreground mt-1.5">
-          District Teacher Support Programme
+          Access your coaching dashboard
         </p>
       </div>
 
@@ -71,8 +76,8 @@ function LoginForm() {
         Sign in with Google
       </Button>
 
-      <p className="text-xs text-muted-foreground mt-5 text-center">
-        Sign in with your CSF Google account
+      <p className="text-xs text-muted-foreground mt-5">
+        Sign in with your CSF Google account. Only authorized team members can access this platform.
       </p>
     </>
   )

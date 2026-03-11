@@ -24,7 +24,7 @@ export function SubNav({ role }: SubNavProps) {
 
   return (
     <nav className="hidden md:block border-b border-border bg-white/80 backdrop-blur-sm sticky top-14 z-30">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="px-4 sm:px-6 lg:px-10 xl:px-16 max-w-[1400px] mx-auto">
         <div className="flex items-center gap-1 h-11">
           {navItems.map((item) => {
             const Icon = item.icon

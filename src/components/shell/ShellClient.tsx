@@ -21,12 +21,13 @@ export function ShellClient({ role, userName, escalationCount, children }: Shell
         escalationCount={escalationCount}
       />
 
-      {/* Horizontal sub-nav - hidden on mobile (bottom bar handles it) */}
       <SubNav role={role} />
 
-      {/* Main content - NO card wrapper, pages own their cards */}
-      <main className="flex-1 min-w-0 px-4 sm:px-6 lg:px-8 py-6 pb-24 md:pb-8 max-w-6xl mx-auto w-full">
-        {children}
+      {/* Content fills the viewport — white bg, responsive padding */}
+      <main className="flex-1 bg-white border-t border-border">
+        <div className="px-4 sm:px-6 lg:px-10 xl:px-16 py-6 sm:py-8 pb-24 md:pb-10 max-w-[1400px] mx-auto">
+          {children}
+        </div>
       </main>
 
       <MobileBottomBar role={role} />
