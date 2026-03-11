@@ -95,7 +95,7 @@ export default async function CMHome() {
 
       <div>
         <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">Coaches</p>
-        <div className="rounded-lg border border-border divide-y divide-border">
+        <div className="rounded-lg border border-border bg-card shadow-md divide-y divide-border">
           {coachList.length === 0 ? (
             <p className="text-sm text-muted-foreground py-6 text-center">No coaches in your cluster yet.</p>
           ) : (

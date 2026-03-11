@@ -55,17 +55,17 @@ export default async function AdminHome() {
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {stats.map((stat) => (
-          <div key={stat.label} className="rounded-lg border border-border bg-card p-3">
+          <div key={stat.label} className="rounded-lg border border-border bg-card p-3 shadow-md">
             <p className="text-xs text-muted-foreground">{stat.label}</p>
             <p className="text-xl font-semibold mt-0.5 tabular-nums">{stat.value}</p>
           </div>
         ))}
       </div>
 
-      <div className="space-y-1">
+      <div className="rounded-lg border border-border bg-card shadow-md divide-y divide-border">
         {quickLinks.map((link) => (
           <Link key={link.href} href={link.href}>
-            <div className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted/50 transition-colors group">
+            <div className="flex items-center gap-3 p-3 hover:bg-muted/50 transition-colors group">
               <div className="w-8 h-8 rounded-md bg-muted flex items-center justify-center shrink-0">
                 <link.icon className="h-4 w-4 text-muted-foreground" />
               </div>

@@ -70,12 +70,12 @@ export function TopNav({ role, userName, escalationCount = 0 }: TopNavProps) {
   }
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-border bg-background shadow-sm">
+    <header className="sticky top-0 z-40 w-full bg-[hsl(220,20%,18%)] shadow-md">
       <div className="flex h-12 items-center gap-6 px-4 sm:px-6 max-w-5xl mx-auto">
 
         {/* Brand + Role */}
         <Link href="/" className="flex items-center gap-2 shrink-0">
-          <span className="text-sm font-semibold text-foreground">DTSP</span>
+          <span className="text-sm font-semibold text-white">DTSP</span>
         </Link>
 
         {/* Nav */}
@@ -87,8 +87,8 @@ export function TopNav({ role, userName, escalationCount = 0 }: TopNavProps) {
               className={cn(
                 'px-3 h-12 inline-flex items-center text-sm transition-colors border-b-2 whitespace-nowrap',
                 isActive(item)
-                  ? 'border-primary text-foreground font-medium'
-                  : 'border-transparent text-muted-foreground hover:text-foreground'
+                  ? 'border-blue-400 text-white font-medium'
+                  : 'border-transparent text-white/60 hover:text-white'
               )}
             >
               {item.label}
@@ -103,7 +103,7 @@ export function TopNav({ role, userName, escalationCount = 0 }: TopNavProps) {
           {role === 'cm' && escalationCount > 0 && (
             <Link
               href="/cm/coaches"
-              className="relative p-1.5 rounded-md transition-colors hover:bg-muted text-muted-foreground hover:text-foreground"
+              className="relative p-1.5 rounded-md transition-colors hover:bg-white/10 text-white/60 hover:text-white"
               title={`${escalationCount} open escalations`}
             >
               <Bell className="h-4 w-4" />
@@ -120,15 +120,15 @@ export function TopNav({ role, userName, escalationCount = 0 }: TopNavProps) {
               className={cn(
                 'flex items-center gap-1.5 h-8 px-2.5 rounded-md text-xs transition-colors',
                 showRoleSwitcher
-                  ? 'bg-muted text-foreground'
-                  : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                  ? 'bg-white/15 text-white'
+                  : 'text-white/60 hover:text-white hover:bg-white/10'
               )}
             >
-              <div className="w-5 h-5 rounded-md bg-foreground text-background flex items-center justify-center text-[10px] font-bold">
+              <div className="w-5 h-5 rounded-md bg-white text-[hsl(220,20%,18%)] flex items-center justify-center text-[10px] font-bold">
                 {userName.charAt(0).toUpperCase()}
               </div>
-              <span className="hidden sm:inline">{ROLE_LABEL[role]}</span>
-              <ChevronDown className="h-3 w-3" />
+              <span className="hidden sm:inline text-white/80">{ROLE_LABEL[role]}</span>
+              <ChevronDown className="h-3 w-3 text-white/60" />
             </button>
 
             {showRoleSwitcher && (
