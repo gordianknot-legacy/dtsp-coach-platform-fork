@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { Users, GraduationCap, Settings, Upload, UserCog, ChevronRight, AlertTriangle } from 'lucide-react'
@@ -10,11 +11,13 @@ export default async function AdminHome() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
+  const admin = createAdminClient()
+
   const [coachCount, teacherCount, orgCount, standardsExist] = await Promise.all([
-    supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('role', 'coach'),
-    supabase.from('teachers').select('*', { count: 'exact', head: true }).eq('status', 'active'),
-    supabase.from('org_units').select('*', { count: 'exact', head: true }),
-    supabase.from('session_templates').select('id', { count: 'exact', head: true }),
+    admin.from('profiles').select('*', { count: 'exact', head: true }).eq('role', 'coach'),
+    admin.from('teachers').select('*', { count: 'exact', head: true }).eq('status', 'active'),
+    admin.from('org_units').select('*', { count: 'exact', head: true }),
+    admin.from('session_templates').select('id', { count: 'exact', head: true }),
   ])
 
   const warnings: { text: string; href: string }[] = []

@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 
 const REQUIRED_FIELDS = ['name', 'school_name']
 const OPTIONAL_FIELDS = ['phone', 'udise_code', 'block_tag', 'designation', 'hm_name', 'hm_phone']
@@ -37,7 +38,8 @@ export async function POST(request: NextRequest) {
   const validRows: Record<string, string>[] = []
 
   // Get existing phones and UDISE codes to check uniqueness
-  const { data: existingTeachers } = await supabase
+  const admin = createAdminClient()
+  const { data: existingTeachers } = await admin
     .from('teachers')
     .select('phone, udise_code')
     .eq('cohort_id', cohortId)

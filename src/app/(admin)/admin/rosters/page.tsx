@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { redirect } from 'next/navigation'
 import { RosterImport } from './RosterImport'
 
@@ -7,7 +8,9 @@ export default async function RostersPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  const { data: cohorts } = await supabase
+  const admin = createAdminClient()
+
+  const { data: cohorts } = await admin
     .from('org_units')
     .select('id, name')
     .eq('type', 'cohort')

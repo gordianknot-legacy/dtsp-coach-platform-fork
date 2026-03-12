@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { redirect } from 'next/navigation'
 import { AssignmentsPage } from './AssignmentsPage'
 
@@ -7,13 +8,15 @@ export default async function Assignments() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
+  const admin = createAdminClient()
+
   const [coaches, teachers] = await Promise.all([
-    supabase
+    admin
       .from('profiles')
       .select('id, name, cohort_id')
       .eq('role', 'coach')
       .order('name'),
-    supabase
+    admin
       .from('teachers')
       .select(`
         id, name, school_name, block_tag, cohort_id,
