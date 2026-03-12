@@ -1,4 +1,5 @@
 import { createServerClient } from '@supabase/ssr'
+import { createClient } from '@supabase/supabase-js'
 import { NextResponse, type NextRequest } from 'next/server'
 import type { UserRole } from '@/lib/supabase/types'
 
@@ -9,6 +10,7 @@ const ROLE_HOME: Record<UserRole, string> = {
   admin: '/admin',
   observer: '/observer',
 }
+const ALLOWED_DOMAIN = 'centralsquarefoundation.org'
 
 export async function middleware(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request })
@@ -71,7 +73,30 @@ export async function middleware(request: NextRequest) {
     .single()
 
   if (!profile) {
-    return NextResponse.redirect(new URL('/login', request.url))
+    // Auto-create profile for CSF domain users who are missing one
+    const email = user.email?.toLowerCase() ?? ''
+    if (email.endsWith(`@${ALLOWED_DOMAIN}`)) {
+      const adminClient = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.SUPABASE_SERVICE_ROLE_KEY!,
+        { auth: { autoRefreshToken: false, persistSession: false } }
+      )
+      const displayName = user.user_metadata?.full_name
+        || user.user_metadata?.name
+        || email.split('@')[0]
+      await adminClient.from('profiles').insert({
+        id: user.id,
+        role: 'admin',
+        name: displayName,
+      })
+      // Redirect to admin home after creating profile
+      return NextResponse.redirect(new URL('/admin', request.url))
+    }
+    // Non-CSF user with no profile — allow login page, redirect others
+    if (pathname.startsWith('/login')) {
+      return supabaseResponse
+    }
+    return NextResponse.redirect(new URL('/login?error=access_denied', request.url))
   }
 
   const role = profile.role as UserRole

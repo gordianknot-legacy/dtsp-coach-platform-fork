@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { cn } from '@/lib/utils'
-import { LogOut, Bell, ChevronDown, Check } from 'lucide-react'
+import { LogOut, Bell, ChevronDown, Check, HelpCircle } from 'lucide-react'
 import { ROLE_LABEL } from './nav-config'
 import type { UserRole } from '@/lib/supabase/types'
 import { useState } from 'react'
@@ -41,6 +41,15 @@ export function TopNav({ role, userName, escalationCount = 0 }: TopNavProps) {
 
         {/* Right side */}
         <div className="flex items-center gap-2 shrink-0">
+
+          {/* Guide */}
+          <Link
+            href="/guide"
+            className="p-1.5 rounded-md transition-colors hover:bg-white/10 text-white/60 hover:text-white"
+            title="Platform Guide"
+          >
+            <HelpCircle className="h-4 w-4" />
+          </Link>
 
           {/* Escalation bell — CM only */}
           {role === 'cm' && escalationCount > 0 && (
