@@ -1,10 +1,13 @@
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { NextResponse, type NextRequest } from 'next/server'
 
 export async function POST(request: NextRequest) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+  const admin = createAdminClient()
 
   const body = await request.json()
   const { cohort_id, teachers } = body
@@ -26,12 +29,12 @@ export async function POST(request: NextRequest) {
     status: 'active',
   }))
 
-  // Insert in batches of 100
+  // Insert in batches of 100 (admin client bypasses RLS)
   let imported = 0
   const batchSize = 100
   for (let i = 0; i < records.length; i += batchSize) {
     const batch = records.slice(i, i + batchSize)
-    const { data, error } = await supabase
+    const { data, error } = await admin
       .from('teachers')
       .insert(batch)
       .select('id')

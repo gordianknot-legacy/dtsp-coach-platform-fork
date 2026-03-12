@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { NextResponse, type NextRequest } from 'next/server'
 
 export async function GET(request: NextRequest) {
@@ -26,12 +27,14 @@ export async function PUT(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
+  const admin = createAdminClient()
+
   const body = await request.json()
   const { cohort_id, focus_categories, rubric_json, vba_checklist, required_fields } = body
 
   if (!cohort_id) return NextResponse.json({ error: 'cohort_id required' }, { status: 400 })
 
-  const { data, error } = await supabase
+  const { data, error } = await admin
     .from('session_templates')
     .upsert(
       {

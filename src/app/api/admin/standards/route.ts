@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { NextResponse, type NextRequest } from 'next/server'
 
 export async function GET(request: NextRequest) {
@@ -27,6 +28,8 @@ export async function PUT(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
+  const admin = createAdminClient()
+
   const body = await request.json()
   const { cohort_id, standards } = body
 
@@ -42,7 +45,7 @@ export async function PUT(request: NextRequest) {
     updated_at: new Date().toISOString(),
   }))
 
-  const { error } = await supabase
+  const { error } = await admin
     .from('program_standards')
     .upsert(records, { onConflict: 'cohort_id,key' })
 
