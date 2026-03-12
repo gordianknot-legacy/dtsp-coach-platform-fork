@@ -24,8 +24,8 @@ export function SubNav({ role }: SubNavProps) {
 
   return (
     <nav className="hidden md:block border-b border-border bg-white/80 backdrop-blur-sm sticky top-14 z-30">
-      <div className="px-4 sm:px-6 lg:px-10 xl:px-16 max-w-[1400px] mx-auto">
-        <div className="flex items-center gap-1 h-11">
+      <div className="px-5 sm:px-8 md:px-10 lg:px-16 xl:px-24 max-w-[1400px] mx-auto">
+        <div className="flex items-center gap-1 h-11 -mb-px">
           {navItems.map((item) => {
             const Icon = item.icon
             const active = isActive(item)
@@ -34,14 +34,17 @@ export function SubNav({ role }: SubNavProps) {
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  'relative flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-md transition-colors',
+                  'relative flex items-center gap-1.5 px-3 h-full text-sm font-medium transition-colors',
                   active
-                    ? 'text-primary bg-primary/8'
-                    : 'text-muted-foreground hover:text-foreground hover:bg-muted/60'
+                    ? 'text-primary'
+                    : 'text-muted-foreground hover:text-foreground'
                 )}
               >
                 <Icon className="h-3.5 w-3.5" />
                 {item.label}
+                {active && (
+                  <span className="absolute bottom-0 left-2 right-2 h-0.5 rounded-full bg-primary" />
+                )}
               </Link>
             )
           })}

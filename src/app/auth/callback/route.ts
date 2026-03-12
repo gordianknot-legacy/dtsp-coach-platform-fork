@@ -65,7 +65,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(`${origin}${home}`)
   }
 
-  // New user — create profile with default role 'coach', then send to role selector
+  // New user — create profile with default role 'admin', then send to admin home
   const admin = createAdminClient()
   const displayName = data.user.user_metadata?.full_name
     || data.user.user_metadata?.name
@@ -73,10 +73,9 @@ export async function GET(request: NextRequest) {
 
   await admin.from('profiles').insert({
     id: data.user.id,
-    role: 'coach',
+    role: 'admin',
     name: displayName,
   })
 
-  // Send new user to role selector page
-  return NextResponse.redirect(`${origin}/role-select`)
+  return NextResponse.redirect(`${origin}/admin`)
 }

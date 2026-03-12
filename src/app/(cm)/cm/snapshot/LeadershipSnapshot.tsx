@@ -73,20 +73,24 @@ export function LeadershipSnapshot({
         {/* RYG distribution */}
         <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
           <p className="text-sm font-semibold mb-4">Teacher RYG distribution</p>
-          <div className="h-40">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={rygChartData}>
-                <XAxis dataKey="name" tick={{ fontSize: 12 }} />
-                <YAxis tick={{ fontSize: 12 }} />
-                <Tooltip />
-                <Bar dataKey="value" radius={[6, 6, 0, 0]}>
-                  {rygChartData.map((entry, i) => (
-                    <Cell key={i} fill={entry.color} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
+          {rygCounts.G + rygCounts.Y + rygCounts.R === 0 ? (
+            <p className="text-sm text-muted-foreground py-8 text-center">No teacher RYG data yet.</p>
+          ) : (
+            <div className="h-40">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={rygChartData}>
+                  <XAxis dataKey="name" tick={{ fontSize: 12 }} />
+                  <YAxis tick={{ fontSize: 12 }} allowDecimals={false} />
+                  <Tooltip />
+                  <Bar dataKey="value" radius={[6, 6, 0, 0]}>
+                    {rygChartData.map((entry, i) => (
+                      <Cell key={i} fill={entry.color} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          )}
         </div>
 
         {/* Focus distribution */}
@@ -123,6 +127,13 @@ export function LeadershipSnapshot({
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
+              {coaches.length === 0 && (
+                <tr>
+                  <td colSpan={4} className="px-4 py-8 text-center text-sm text-muted-foreground">
+                    No coaches in your cluster yet.
+                  </td>
+                </tr>
+              )}
               {coaches.sort((a, b) => b.openEsc - a.openEsc).map((coach) => (
                 <tr key={coach.id} className="hover:bg-muted/20 transition-colors">
                   <td className="px-4 py-3 font-medium">{coach.name}</td>

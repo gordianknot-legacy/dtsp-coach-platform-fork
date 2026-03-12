@@ -1,12 +1,6 @@
-// Whitelist of allowed email addresses that can access the platform.
-// These users can choose any role and switch between roles.
-export const ALLOWED_EMAILS = [
-  'idi@centralsquarefoundation.org',
-  'deergha@centralsquarefoundation.org',
-  'sanjay@centralsquarefoundation.org',
-  'anirudh.s@centralsquarefoundation.org',
-] as const
+// Any @centralsquarefoundation.org email can access the platform.
+const ALLOWED_DOMAIN = 'centralsquarefoundation.org'
 
 export function isAllowedEmail(email: string): boolean {
-  return ALLOWED_EMAILS.includes(email.toLowerCase() as typeof ALLOWED_EMAILS[number])
+  return email.toLowerCase().endsWith(`@${ALLOWED_DOMAIN}`)
 }

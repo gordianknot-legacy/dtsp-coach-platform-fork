@@ -33,11 +33,10 @@ function LoginForm() {
   return (
     <>
       {/* Mobile-only brand badge (desktop has the left panel) */}
-      <div className="md:hidden flex items-center gap-2.5 mb-10">
-        <div className="w-10 h-10 rounded-xl bg-brand text-brand-foreground flex items-center justify-center text-base font-bold">
-          DT
+      <div className="md:hidden mb-10">
+        <div className="h-10 px-3 rounded-xl bg-brand text-brand-foreground flex items-center justify-center text-base font-bold tracking-tight w-fit">
+          DTSP
         </div>
-        <span className="text-lg font-semibold">DTSP</span>
       </div>
 
       <div className="mb-8">

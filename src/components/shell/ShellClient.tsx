@@ -25,7 +25,7 @@ export function ShellClient({ role, userName, escalationCount, children }: Shell
 
       {/* Content fills the viewport — white bg, responsive padding */}
       <main className="flex-1 bg-white border-t border-border">
-        <div className="px-4 sm:px-6 lg:px-10 xl:px-16 py-6 sm:py-8 pb-24 md:pb-10 max-w-[1400px] mx-auto">
+        <div className="px-5 sm:px-8 md:px-10 lg:px-16 xl:px-24 py-6 sm:py-8 pb-24 md:pb-10 max-w-[1400px] mx-auto">
           {children}
         </div>
       </main>

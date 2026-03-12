@@ -2,6 +2,8 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { RYGBadge } from '@/components/shared/RYGBadge'
+import { EmptyState } from '@/components/shared/EmptyState'
+import { Users } from 'lucide-react'
 import type { RYGStatus } from '@/lib/supabase/types'
 
 
@@ -46,10 +48,11 @@ export default async function TeachersPage() {
       </div>
 
       {sorted.length === 0 ? (
-        <div className="text-center py-16 text-muted-foreground">
-          <p className="text-sm">No teachers assigned yet.</p>
-          <p className="text-xs mt-1">Contact your admin to get teachers assigned.</p>
-        </div>
+        <EmptyState
+          icon={<Users className="h-7 w-7" />}
+          title="No teachers assigned yet"
+          description="Contact your admin to get teachers assigned."
+        />
       ) : (
         <div className="divide-y divide-border rounded-lg border border-border">
           {sorted.map((teacher: any) => (

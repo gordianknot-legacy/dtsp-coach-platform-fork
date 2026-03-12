@@ -2,7 +2,8 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { Badge } from '@/components/ui/badge'
-import { ChevronRight } from 'lucide-react'
+import { EmptyState } from '@/components/shared/EmptyState'
+import { ChevronRight, Users } from 'lucide-react'
 
 
 export default async function CoachesPage() {
@@ -68,7 +69,14 @@ export default async function CoachesPage() {
       </div>
 
       <div className="rounded-lg border border-border divide-y divide-border">
-        {coachMetrics.map((coach: any) => (
+        {coachMetrics.length === 0 ? (
+          <EmptyState
+            icon={<Users className="h-7 w-7" />}
+            title="No coaches in your cluster"
+            description="Coaches will appear here once assigned by an admin."
+            className="py-12"
+          />
+        ) : coachMetrics.map((coach: any) => (
           <Link key={coach.id} href={`/cm/coaches/${coach.id}`}>
             <div className="flex items-center gap-3 px-3 py-3 hover:bg-muted/50 transition-colors">
               <div className="flex-1 min-w-0">
@@ -90,7 +98,7 @@ export default async function CoachesPage() {
             </div>
           </Link>
         ))}
-      </div>
+        </div>
     </div>
   )
 }
